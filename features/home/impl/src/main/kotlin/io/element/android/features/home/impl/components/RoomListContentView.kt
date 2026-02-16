@@ -27,7 +27,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,7 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import chat.schildi.features.home.spaces.SpacesPager
+import chat.schildi.features.home.spaces.SpaceListDataSource
 import chat.schildi.features.home.spaces.resolveSelection
 import chat.schildi.lib.preferences.ScPrefs
 import chat.schildi.lib.preferences.value
@@ -65,7 +64,6 @@ import io.element.android.libraries.designsystem.theme.components.Text
 import io.element.android.libraries.matrix.api.core.RoomId
 import io.element.android.libraries.ui.strings.CommonStrings
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.coroutines.launch
 
 @Composable
 fun RoomListContentView(
@@ -76,7 +74,6 @@ fun RoomListContentView(
     onUpstreamSpaceClick: (RoomId) -> Unit,
     onCreateSpaceClick: () -> Unit,
     onExploreSpaceClick: () -> Unit,
-    onMeasureSpaceBarHeight: (Int) -> Unit = {},
     // SC end
     lazyListState: LazyListState,
     hideInvitesAvatars: Boolean,
@@ -117,7 +114,6 @@ fun RoomListContentView(
                 onUpstreamSpaceClick = onUpstreamSpaceClick,
                 onCreateSpaceClick = onCreateSpaceClick,
                 onExploreSpaceClick = onExploreSpaceClick,
-                onMeasureSpaceBarHeight = onMeasureSpaceBarHeight,
                 // SC end
                 eventSink = eventSink,
                 onSetUpRecoveryClick = onSetUpRecoveryClick,
@@ -203,7 +199,6 @@ private fun RoomsView(
     onUpstreamSpaceClick: (RoomId) -> Unit,
     onCreateSpaceClick: () -> Unit,
     onExploreSpaceClick: () -> Unit,
-    onMeasureSpaceBarHeight: (Int) -> Unit,
     // SC end
     eventSink: (RoomListEvents) -> Unit,
     onSetUpRecoveryClick: () -> Unit,
@@ -227,7 +222,6 @@ private fun RoomsView(
             onUpstreamSpaceClick = onUpstreamSpaceClick,
             onCreateSpaceClick = onCreateSpaceClick,
             onExploreSpaceClick = onExploreSpaceClick,
-            onMeasureSpaceBarHeight = onMeasureSpaceBarHeight,
             // SC end
             hideInvitesAvatars = hideInvitesAvatars,
             eventSink = eventSink,
@@ -250,7 +244,6 @@ private fun RoomsViewList(
     onUpstreamSpaceClick: (RoomId) -> Unit,
     onCreateSpaceClick: () -> Unit,
     onExploreSpaceClick: () -> Unit,
-    onMeasureSpaceBarHeight: (Int) -> Unit,
     // SC end
     hideInvitesAvatars: Boolean,
     eventSink: (RoomListEvents) -> Unit,
@@ -273,26 +266,25 @@ private fun RoomsViewList(
     LaunchedEffect(visibleRange) {
         updatedEventSink(RoomListEvents.UpdateVisibleRange(visibleRange))
     }
-    val coroutineScope = rememberCoroutineScope()
-    SpacesPager(
-        homeState = homeState,
-        lazyListState = lazyListState,
-        spacesList = state.spacesList,
-        totalUnreadCounts = state.totalUnreadCounts,
-        spaceSelectionHierarchy = state.spaceSelectionHierarchy,
-        onSpaceSelected = { selection ->
-            eventSink(RoomListEvents.UpdateSpaceFilter(selection))
-            coroutineScope.launch { lazyListState.scrollToItem(0) }
-        },
-        onUpstreamSpaceClick = onUpstreamSpaceClick,
-        onCreateSpaceClick = onCreateSpaceClick,
-        onExploreClick = onExploreSpaceClick,
-        onMeasureSpaceBarHeight = onMeasureSpaceBarHeight,
-        modifier = modifier,
-    ) { modifier ->
+
+    // SC: Check if upstream space list is selected
+    val isUpstreamSpaceList = state.spaceSelectionHierarchy.firstOrNull() == SpaceListDataSource.UpstreamSpaceListItem.SPACE_ID
+    if (isUpstreamSpaceList) {
+        io.element.android.features.home.impl.spaces.HomeSpacesView(
+            modifier = modifier.fillMaxSize(),
+            state = homeState.homeSpacesState,
+            lazyListState = lazyListState,
+            onSpaceClick = onUpstreamSpaceClick,
+            onCreateSpaceClick = onCreateSpaceClick,
+            onExploreClick = onExploreSpaceClick,
+        )
+        return
+    }
+
+    Box(modifier) {
     LazyColumn(
         state = lazyListState,
-        modifier = modifier,
+        modifier = Modifier.fillMaxSize(),
         contentPadding = contentPadding,
     ) {
         when (state.securityBannerState) {
@@ -360,13 +352,13 @@ private fun RoomsViewList(
             }
         }
     }
-        // SC empty space view
-        if (state.summaries.isEmpty()) {
-            if (filtersState.hasAnyFilterSelected)
-                EmptyViewForFilterStates(filtersState.selectedFilters(), Modifier.fillMaxSize())
-            else
-                ScSpaceEmptyView(state.spacesList.resolveSelection(state.spaceSelectionHierarchy))
-        }
+    // SC empty space view
+    if (state.summaries.isEmpty()) {
+        if (filtersState.hasAnyFilterSelected)
+            EmptyViewForFilterStates(filtersState.selectedFilters(), Modifier.fillMaxSize())
+        else
+            ScSpaceEmptyView(state.spacesList.resolveSelection(state.spaceSelectionHierarchy))
+    }
     }
 }
 

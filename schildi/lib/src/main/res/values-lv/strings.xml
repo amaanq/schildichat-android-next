@@ -19,11 +19,7 @@
     <string name="sc_pref_fast_transitions_summary">Paātrināt loga animāciju</string>
     <string name="sc_pref_compact_app_bar_summary">Nekad neizvērst augšējo lietotņu joslu</string>
     <string name="sc_space_nav_summary">Atlasīt tērzēšanas pēc vietām</string>
-    <string name="sc_compact_root_spaces_title">Blīvas saknes vietas</string>
     <string name="sc_pref_compact_app_bar_title">Blīva lietotņu josla</string>
-    <string name="sc_compact_root_spaces_summary">Rādītu ikonu bez nosaukuma sakņu vietām</string>
-    <string name="sc_space_swipe_title">Pavilkt, lai pārslēgtos starp vietām</string>
-    <string name="sc_space_swipe_summary">Tērzēšanas pārskats jāpavelk guleniski, lai pārslēgtos starp vietām</string>
     <string name="sc_space_unread_counts_mode_title">Sakopots nelasīto ziņu skaits</string>
     <string name="sc_pref_danger_zone">Bīstamā daļa</string>
     <string name="sc_space_unread_counts_mode_messages">Skaitīt nelasītās ziņas</string>

@@ -23,10 +23,6 @@
     <string name="sc_pref_compact_app_bar_summary">لا تقم بتوسيع الشريط العلوي الخاص بالتطبيق</string>
     <string name="sc_space_nav_title">التنقل بين المساحات</string>
     <string name="sc_space_nav_summary">تصفية محادثاتك حسب المساحات</string>
-    <string name="sc_compact_root_spaces_title">مساحات جذرية مضغوطة</string>
-    <string name="sc_compact_root_spaces_summary">عرض أيقونة بدون اسم للمساحات الجذرية</string>
-    <string name="sc_space_swipe_title">اسحب للتبديل بين المساحات</string>
-    <string name="sc_space_swipe_summary">اسحب عبارة \"نظرة عامة على المحادثة\" أفقياً لتبديل المساحات</string>
     <string name="sc_space_unread_counts_mode_title">إجمالي أعداد غير المقروء</string>
     <string name="sc_space_unread_counts_mode_messages">عداد الرسائل غير المقروئة</string>
     <string name="sc_space_unread_counts_mode_chats">عداد المحادثات غير المقروئة</string>

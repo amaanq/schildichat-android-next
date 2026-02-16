@@ -15,9 +15,7 @@
     <string name="sc_space_unread_counts_mode_chats">Contar conversas não lidas</string>
     <string name="sc_sync_read_receipt_and_marker_title_short">Sincronizar marcadores de leitura</string>
     <string name="sc_pref_fast_transitions_summary">Acelerar animação da janela</string>
-    <string name="sc_space_swipe_title">Arrastar para trocar de espaços</string>
     <string name="sc_pref_compact_app_bar_title">Barra do aplicativo compacta</string>
-    <string name="sc_compact_root_spaces_title">Espaços raiz compactos</string>
     <string name="sc_space_unread_counts_mode_title">Contagens agregados de não lidos</string>
     <string name="sc_space_unread_counts_mode_messages">Contar mensagens não lidas</string>
     <string name="sc_pref_pl_display_name_title">Nomear cores por nível de poder</string>
@@ -107,7 +105,6 @@
     <string name="sc_space_list_permissions_missing_for_following">Espaços gerenciados por outros</string>
     <string name="sc_pref_compact_app_bar_summary">Nunca expandir a barra superior do aplicativo</string>
     <string name="sc_pref_mark_read_requires_seen_unread_line_title">Somente marcar como lido ao ler totalmente</string>
-    <string name="sc_compact_root_spaces_summary">Mostrar ícone sem nome para espaços raiz</string>
     <string name="sc_sync_read_receipt_and_marker_title">Manter marcador de leitura e recibos sincronizados</string>
     <string name="sc_set_read_marker_toast_start">Configurando marcador de leitura para %s</string>
     <string name="sc_push_info_summary">Ver informações de depuração relacionadas a notificações em plano de fundo</string>
@@ -157,7 +154,6 @@
     <string name="sc_pref_message_context_menu_text_selectable_summary">Permitir seleção de texto refinada para copiar e colar no togue longo do menu de mensagem</string>
     <string name="sc_space_nav_title">Navegação por espaços</string>
     <string name="sc_space_nav_summary">Filtrar suas conversas por espaços</string>
-    <string name="sc_space_swipe_summary">Arrastar a visão geral da conversa horizontalmente para trocar de espaços</string>
     <string name="sc_push_info_title">Informações de notificações em plano de fundo</string>
     <string name="sc_pref_snc_fab_title_short">CNC como BAF</string>
     <string name="sc_pref_dual_mention_unread_counts_title_short">Contagem dupla de menções</string>

@@ -20,8 +20,6 @@
     <string name="sc_set_read_marker_toast_start">Встановлення маркера читання на %s</string>
     <string name="sc_set_read_marker_implicit_toast_start">Встановлення маркера читання…</string>
     <string name="sc_space_nav_summary">Фільтруйте свої чати просторами</string>
-    <string name="sc_compact_root_spaces_title">Компактні кореневі простори</string>
-    <string name="sc_space_swipe_title">Гортайте, щоб перемикатися між просторами</string>
     <string name="sc_client_generated_unread_counts_title">Кількість непрочитаних, створених клієнтом</string>
     <string name="sc_client_generated_unread_counts_summary">Обчислювати кількість непрочитаних на пристрої замість того, щоб довіряти значенням із сервера</string>
     <string name="sc_push_info_title">Push-інформація</string>
@@ -66,7 +64,6 @@
     <string name="sc_freeform_reaction">Реакції вільної форми</string>
     <string name="sc_recent_reaction">Часто використовується</string>
     <string name="sc_upstream_feature_flag_room_list_filters">Фільтри списку кімнат</string>
-    <string name="sc_compact_root_spaces_summary">Показати піктограму без імені для кореневих просторів</string>
     <string name="sc_onboarding_welcome_title">Вітаю у SchildiChat</string>
     <string name="sc_onboarding_welcome_summary">Введення черепах у Matrix</string>
     <string name="sc_pref_tweaks_title">Налаштування черепахи</string>
@@ -83,7 +80,6 @@
     <string name="sc_pref_pin_favorites_summary">Показувати чати, позначені як улюблені, у верхній частині списку</string>
     <string name="sc_pseudo_space_spaceless_groups_short">Групи</string>
     <string name="sc_pseudo_space_unread">Непрочитане</string>
-    <string name="sc_space_swipe_summary">Перетягніть огляд чату горизонтально, щоб перемикнутися між просторами</string>
     <string name="sc_pref_dual_mention_unread_counts_title">Комбінований підрахунок згадувань/непрочитаних</string>
     <string name="sc_pref_dual_mention_unread_counts_title_short">Подвійна кількість згадок</string>
     <string name="sc_pref_dual_mention_unread_counts_summary">Якщо кількість згадок у виділеному чаті відрізняється від кількості непрочитаних, показувати обидва показники</string>

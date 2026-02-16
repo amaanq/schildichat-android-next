@@ -16,8 +16,6 @@
     <string name="sc_pref_sc_timeline_layout_title">SC Konversacia aranĝo</string>
     <string name="sc_pref_el_typography_summary">Uzi la tiparajn agordojn de Element kun pli granda mesaĝa teksto</string>
     <string name="sc_set_read_marker_implicit_toast_start">Agordiĝas legitindikilo…</string>
-    <string name="sc_compact_root_spaces_title">Kompaktaj radikaj spacoj</string>
-    <string name="sc_compact_root_spaces_summary">Montri nur ikonojn sen la nomoj de radikaj spacoj</string>
     <string name="sc_pref_debug_read_marker">Sencimiga Legitindikilo</string>
     <string name="sc_space_unread_counts_mode_messages">Nombri nelegitajn mesaĝojn</string>
     <string name="sc_space_unread_counts_mode_chats">Nombri nelegitajn babilejojn</string>
@@ -27,8 +25,6 @@
     <string name="sc_pref_compact_app_bar_summary">Neniam etendi la supra aplikaĵa breto</string>
     <string name="sc_space_nav_title">Spaca navigado</string>
     <string name="sc_space_nav_summary">Filtri viajn babilojn laŭ spacoj</string>
-    <string name="sc_space_swipe_title">Ŝovumi por ŝanĝi al aliaj spacoj</string>
-    <string name="sc_space_swipe_summary">Ŝovumi horizontale sur la babileja superrigardo por ŝanĝi al aliaj spacoj</string>
     <string name="sc_space_unread_counts_mode_title">Agregataj nelegitaj nombroj</string>
     <string name="sc_sync_read_receipt_and_marker_title">Restigi legitindikilon kaj legkonfirmon sinkronigitaj</string>
     <string name="sc_sync_read_receipt_and_marker_summary">Ĉiam agordi vian legkonfirmon (kiun aliaj vidas kaj kiu kalkulas viajn nelegitajn mesaĝajn nombrojn) al la sama mesaĝo kiel via plene legitindikilo (la nova mesaĝlinio kiam vi vidas babilejon)</string>

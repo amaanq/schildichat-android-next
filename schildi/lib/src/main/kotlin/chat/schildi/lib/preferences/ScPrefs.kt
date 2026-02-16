@@ -25,6 +25,7 @@ object ScPrefs {
 
     // Appearance
     val SC_THEME = ScBoolPref("SC_THEMES", true, R.string.sc_pref_sc_themes_title, R.string.sc_pref_sc_themes_summary, upstreamChoice = false)
+    val MATERIAL_YOU = ScBoolPref("MATERIAL_YOU", false, R.string.sc_pref_material_you_title, R.string.sc_pref_material_you_summary, upstreamChoice = false, authorsChoice = false)
     val EL_TYPOGRAPHY = ScBoolPref("EL_TYPOGRAPHY", false, R.string.sc_pref_el_typography_title, R.string.sc_pref_el_typography_summary, upstreamChoice = true)
     val TWO_INITIALS_AVATAR_FALLBACK = ScBoolPref("TWO_INITIALS_AVATAR_FALLBACK", false, R.string.sc_pref_two_initials_avatar_fallback_title, R.string.sc_pref_two_initials_avatar_fallback_summary, upstreamChoice = false, authorsChoice = true)
 
@@ -59,7 +60,6 @@ object ScPrefs {
 
     // Spaces
     val SPACE_NAV = ScBoolPref("SPACE_NAV", true, R.string.sc_space_nav_title, R.string.sc_space_nav_summary, upstreamChoice = false, authorsChoice = true)
-    val COMPACT_ROOT_SPACES = ScBoolPref("COMPACT_ROOT_SPACES", false, R.string.sc_compact_root_spaces_title, R.string.sc_compact_root_spaces_summary, authorsChoice = true, dependencies = SPACE_NAV.asDependencies())
     val SPACE_UNREAD_COUNTS = ScStringListPref(
         "SPACE_UNREAD_COUNTS",
         SpaceUnreadCountMode.MESSAGES,
@@ -69,7 +69,6 @@ object ScPrefs {
         R.string.sc_space_unread_counts_mode_title,
         dependencies = SPACE_NAV.asDependencies(),
     )
-    val SPACE_SWIPE = ScBoolPref("SPACE_SWIPE", true, R.string.sc_space_swipe_title, R.string.sc_space_swipe_summary, upstreamChoice = false, authorsChoice = true, dependencies = SPACE_NAV.asDependencies())
     val PSEUDO_SPACE_ALL_ROOMS = ScBoolPref("PSEUDO_SPACE_ALL_CHATS", true, R.string.sc_space_all_rooms_title, R.string.sc_space_all_rooms_summary, dependencies = SPACE_NAV.asDependencies())
     val PSEUDO_SPACE_FAVORITES = ScBoolPref("PSEUDO_SPACE_FAVORITES", false, R.string.sc_pseudo_space_favorites, null, dependencies = SPACE_NAV.asDependencies())
     val PSEUDO_SPACE_DMS = ScBoolPref("PSEUDO_SPACE_DMS", false, R.string.sc_pseudo_space_dms, null, dependencies = SPACE_NAV.asDependencies())
@@ -141,6 +140,7 @@ object ScPrefs {
         ScPrefScreen(R.string.sc_pref_category_general, R.string.sc_pref_category_general_summary, listOf(
             ScPrefCategory(R.string.sc_pref_category_general_appearance, null, listOf(
                 SC_THEME,
+                MATERIAL_YOU,
                 EL_TYPOGRAPHY,
                 TWO_INITIALS_AVATAR_FALLBACK,
                 ScPrefScreen(R.string.sc_pref_screen_advanced_theming_title, R.string.sc_pref_screen_advanced_theming_summary, listOf(
@@ -171,8 +171,6 @@ object ScPrefs {
         ScPrefScreen(R.string.sc_pref_category_spaces, null, listOf(
             SPACE_NAV,
             SPACE_UNREAD_COUNTS,
-            SPACE_SWIPE,
-            COMPACT_ROOT_SPACES,
             ScPrefScreen(R.string.sc_pseudo_spaces_title, R.string.sc_pseudo_spaces_summary_experimental, listOf(
                 ScPrefCategory(R.string.sc_pseudo_spaces_title, null, listOf(
                     PSEUDO_SPACE_ALL_ROOMS,
@@ -272,13 +270,13 @@ object ScPrefs {
         )),
         ScPrefCategory(R.string.sc_pref_category_general_appearance, null, listOf(
             SC_THEME,
+            MATERIAL_YOU,
             SC_OVERVIEW_LAYOUT.copy(titleRes = R.string.sc_pref_sc_layout_title),
             EL_TYPOGRAPHY,
             TWO_INITIALS_AVATAR_FALLBACK,
         )),
         ScPrefCategory(R.string.sc_pref_category_spaces, null, listOf(
             SPACE_NAV,
-            COMPACT_ROOT_SPACES,
             ScPrefCategory(R.string.sc_pseudo_spaces_title, null, listOf(
                 PSEUDO_SPACE_ALL_ROOMS,
                 PSEUDO_SPACE_FAVORITES,

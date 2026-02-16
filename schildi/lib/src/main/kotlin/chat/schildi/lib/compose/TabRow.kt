@@ -914,21 +914,35 @@ private fun ScrollableTabRowImp(
                 curr + measurable.width
             }
 
-            // Position the children.
-            layout(layoutWidth, layoutHeight) {
-                // Place the tabs
-                val tabPositions = mutableListOf<TabPosition>()
-                var left = padding
-                tabPlaceables.fastForEachIndexed { index, placeable ->
-                    placeable.placeRelative(left, 0)
-                    tabPositions.add(
-                        TabPosition(
-                            left = left.toDp(),
-                            width = placeable.width.toDp(),
-                            contentWidth = tabContentWidths[index]
-                        )
+            // Pre-compute tab positions before placement
+            val tabPositions = mutableListOf<TabPosition>()
+            var left = padding
+            tabPlaceables.fastForEachIndexed { index, placeable ->
+                tabPositions.add(
+                    TabPosition(
+                        left = left.toDp(),
+                        width = placeable.width.toDp(),
+                        contentWidth = tabContentWidths[index]
                     )
-                    left += placeable.width
+                )
+                left += placeable.width
+            }
+
+            // Position the children: indicator first (behind), then tabs, then divider.
+            layout(layoutWidth, layoutHeight) {
+                // The indicator container is measured to fill the entire space occupied by the tab
+                // row, and placed first so it draws behind the tabs.
+                subcompose(TabSlots.Indicator) {
+                    indicator(tabPositions)
+                }.fastForEach {
+                    it.measure(Constraints.fixed(layoutWidth, layoutHeight)).placeRelative(0, 0)
+                }
+
+                // Place the tabs on top of the indicator
+                var tabLeft = padding
+                tabPlaceables.fastForEach { placeable ->
+                    placeable.placeRelative(tabLeft, 0)
+                    tabLeft += placeable.width
                 }
 
                 // The divider is measured with its own height, and width equal to the total width
@@ -942,14 +956,6 @@ private fun ScrollableTabRowImp(
                         )
                     )
                     placeable.placeRelative(0, layoutHeight - placeable.height)
-                }
-
-                // The indicator container is measured to fill the entire space occupied by the tab
-                // row, and then placed on top of the divider.
-                subcompose(TabSlots.Indicator) {
-                    indicator(tabPositions)
-                }.fastForEach {
-                    it.measure(Constraints.fixed(layoutWidth, layoutHeight)).placeRelative(0, 0)
                 }
 
                 scrollableTabData.onLaidOut(
@@ -1149,6 +1155,34 @@ object TabRowDefaults {
         )
         fillMaxWidth()
             .wrapContentSize(Alignment.BottomStart)
+            .offset { IntOffset(x = indicatorOffset.roundToPx(), y = 0) }
+            .width(currentTabWidth)
+    }
+
+    /**
+     * [Modifier] that takes up all the available width inside the [TabRow], and then animates
+     * the offset of the indicator it is applied to, depending on the [currentTabPosition].
+     * Unlike [tabIndicatorOffset], this centers the indicator vertically within the tab row,
+     * suitable for pill-shaped indicators.
+     */
+    fun Modifier.tabPillIndicatorOffset(
+        currentTabPosition: TabPosition
+    ): Modifier = composed(
+        inspectorInfo = debugInspectorInfo {
+            name = "tabPillIndicatorOffset"
+            value = currentTabPosition
+        }
+    ) {
+        val currentTabWidth by animateDpAsState(
+            targetValue = currentTabPosition.width,
+            animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
+        )
+        val indicatorOffset by animateDpAsState(
+            targetValue = currentTabPosition.left,
+            animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
+        )
+        fillMaxWidth()
+            .wrapContentSize(Alignment.CenterStart)
             .offset { IntOffset(x = indicatorOffset.roundToPx(), y = 0) }
             .width(currentTabWidth)
     }

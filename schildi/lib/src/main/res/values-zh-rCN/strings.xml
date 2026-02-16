@@ -32,12 +32,8 @@
     <string name="sc_pref_screen_experimental_summary">不稳定特性，很可能会有错误</string>
     <string name="event_placeholder_location">位置</string>
     <string name="sc_freeform_reaction">自由形式回应</string>
-    <string name="sc_space_swipe_title">滑动切换空间</string>
-    <string name="sc_space_swipe_summary">水平拖动聊天概览以切换空间</string>
     <string name="sc_set_read_marker_toast_start">将已读标记设置为 %s</string>
     <string name="sc_sync_read_receipt_and_marker_title">保持已读标记和已读回执同步</string>
-    <string name="sc_compact_root_spaces_title">紧凑顶层空间</string>
-    <string name="sc_compact_root_spaces_summary">顶层空间显示不带名称的图标</string>
     <string name="sc_client_generated_unread_counts_summary">在设备上计算未读计数，而不是信任服务器报告的值</string>
     <string name="sc_pref_el_typography_summary">使用 Element 的字体设置来显示更大的消息文本</string>
     <string name="sc_pref_compact_app_bar_summary">永不展开顶部应用栏</string>

@@ -15,13 +15,11 @@
     <string name="sc_pref_danger_zone">危険な領域</string>
     <string name="sc_pref_category_timeline">会話の画面</string>
     <string name="sc_pref_sc_overview_layout_title">SCの概要のレイアウト</string>
-    <string name="sc_space_swipe_title">スワイプでスペースを切り替える</string>
     <string name="sc_pref_category_spaces">スペース</string>
     <string name="sc_push_info_summary">プッシュ通知に関するデバッグ情報を閲覧</string>
     <string name="sc_space_unread_counts_mode_messages">未読メッセージを数える</string>
     <string name="sc_set_read_marker_toast_start">既読マーカーを%sに設定しています</string>
     <string name="sc_onboarding_welcome_title">SchildChatへようこそ</string>
-    <string name="sc_space_swipe_summary">チャットの概要を水平にドラッグしてスペースを切り替える</string>
     <string name="sc_pref_sc_floating_date_title">日付の表示場所を固定</string>
     <string name="sc_pref_fast_transitions_title">高速遷移</string>
     <string name="sc_pref_tweaks_title">カメ的な調整</string>
@@ -30,7 +28,6 @@
     <string name="sc_pref_sc_layout_title">SCレイアウト</string>
     <string name="sc_pref_compact_app_bar_title">コンパクトなアプリケーションバー</string>
     <string name="sc_action_mark_as_unread">未読にする</string>
-    <string name="sc_compact_root_spaces_summary">ルートとなるスペースの名称を表示せず、アイコンのみを表示</string>
     <string name="sc_pref_screen_experimental_title">実験的</string>
     <string name="sc_pref_restore_defaults">初期設定を復元</string>
     <string name="sc_space_nav_summary">チャットをスペース別にフィルター</string>
@@ -39,7 +36,6 @@
     <string name="sc_client_generated_unread_counts_summary">サーバーが報告した値を信じる代わりに、端末上で未読数を計算</string>
     <string name="sc_pref_category_misc">その他</string>
     <string name="sc_pref_sc_floating_date_summary">スクロール中にメッセージの上部に日時を表示</string>
-    <string name="sc_compact_root_spaces_title">コンパクトなルートスペース</string>
     <string name="sc_push_info_title">プッシュ通知の情報</string>
     <string name="sc_pref_restore_authors_choice">作者の選択</string>
     <string name="sc_pref_restore_element">Elementの雰囲気を適用</string>

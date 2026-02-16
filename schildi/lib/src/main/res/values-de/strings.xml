@@ -37,7 +37,6 @@
     <string name="sc_pref_compact_app_bar_title">Kompakte App-Leiste</string>
     <string name="sc_pref_compact_app_bar_summary">Niemals die obere App-Leiste erweitern</string>
     <string name="sc_space_nav_summary">Chats nach Spaces filtern</string>
-    <string name="sc_space_swipe_title">Wischen, um Spaces zu wechseln</string>
     <string name="sc_pref_sc_themes_title">SC Design</string>
     <string name="sc_pref_prefer_freeform_reactions_title">Freiform-Reaktionen bevorzugen</string>
     <string name="sc_pseudo_spaces_title">Pseudo-Spaces</string>
@@ -81,16 +80,13 @@
     <string name="sc_pref_pinned_message_overlay_title_short">Angepinntes Overlay</string>
     <string name="sc_pref_sort_with_silent_unread_title">Sortieren mit stummgeschaltenen Ungelesen-Zähler</string>
     <string name="sc_pref_pinned_message_toolbar_summary">Schnellzugriff auf angeheftete Nachrichten über die obere App-Leiste</string>
-    <string name="sc_compact_root_spaces_summary">Zeige Symbol ohne Namen für Root-Spaces</string>
     <string name="sc_pref_category_misc">Sonstiges</string>
     <string name="sc_pref_el_typography_title">Element Typografie</string>
     <string name="sc_sync_read_receipt_and_marker_summary">Setze den Gelesen-Status (was andere sehen und woraus sich die Anzahl der ungelesenen Nachrichten berechnet) immer auf die gleiche Nachricht, wie die Vollständig-Gelesen-Markierung (die Neue Nachrichten Linie in Chats)</string>
-    <string name="sc_space_swipe_summary">Ziehe die Chat-Übersicht horizontal, um den Space zu wechseln</string>
     <string name="sc_space_unread_counts_mode_title">Aufsummierter Ungelesenenzähler</string>
     <string name="sc_client_generated_unread_counts_title">Client-generierte Anzahl ungelesener Nachrichten</string>
     <string name="sc_pref_prefer_fullscreen_reaction_sheet_title">Vollbild-Reaktionsauswahl</string>
     <string name="sc_pref_client_side_sort_title_short">Client-Sortierung</string>
-    <string name="sc_compact_root_spaces_title">Kompakte Root-Spaces</string>
     <string name="sc_pseudo_spaces_summary_experimental">Zusätzliche Spaces-Seiten (experimentell)</string>
     <string name="sc_pref_dual_mention_unread_counts_summary">Wenn die Anzahl der Erwähnungen eines hervorgehobenen Chats von der Anzahl der ungelesenen Chats abweicht, werden beide angezeigt</string>
     <string name="sc_pref_snc_fab_title_short">SNC als FAB</string>
