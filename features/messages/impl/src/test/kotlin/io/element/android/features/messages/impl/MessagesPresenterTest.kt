@@ -88,6 +88,7 @@ import io.element.android.libraries.matrix.test.A_USER_ID_2
 import io.element.android.libraries.matrix.test.core.aBuildMeta
 import io.element.android.libraries.matrix.test.encryption.FakeEncryptionService
 import io.element.android.libraries.matrix.test.permalink.FakePermalinkParser
+import io.element.android.libraries.matrix.test.roomlist.FakeRoomListService
 import io.element.android.libraries.matrix.test.room.FakeBaseRoom
 import io.element.android.libraries.matrix.test.room.FakeJoinedRoom
 import io.element.android.libraries.matrix.test.room.aRoomInfo
@@ -1305,6 +1306,7 @@ class MessagesPresenterTest {
         actionListEventSink: (ActionListEvent) -> Unit = {},
         addRecentEmoji: AddRecentEmoji = AddRecentEmoji { _ -> lambdaError() },
         markAsFullyRead: MarkAsFullyRead = FakeMarkAsFullyRead(),
+        roomListService: FakeRoomListService = FakeRoomListService(), // SC
     ): MessagesPresenter {
         return MessagesPresenter(
             navigator = navigator,
@@ -1337,6 +1339,7 @@ class MessagesPresenterTest {
             sessionPreferencesStore = InMemorySessionPreferencesStore(), // SC
             scPreferencesStore = FakeScPreferencesStore, // SC
             imagePackService = ImagePackService(ImagePackRepository(FakeMatrixClient())), // SC
+            roomListService = roomListService, // SC
             sessionCoroutineScope = backgroundScope,
         )
     }

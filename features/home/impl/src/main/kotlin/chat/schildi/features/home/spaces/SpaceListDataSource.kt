@@ -490,11 +490,12 @@ class SpaceListDataSource(
 
 fun ScPreferencesStore.pseudoSpaceSettingsFlow(): Flow<SpaceListDataSource.PseudoSpaceSettings> {
     return combinedSettingFlow { lookup ->
+        val spaceNavActive = ScPrefs.SPACE_NAV.safeLookup(lookup) // SC
         SpaceListDataSource.PseudoSpaceSettings(
             favorites = ScPrefs.PSEUDO_SPACE_FAVORITES.safeLookup(lookup),
-            dms = ScPrefs.PSEUDO_SPACE_DMS.safeLookup(lookup),
+            dms = ScPrefs.PSEUDO_SPACE_DMS.safeLookup(lookup) || spaceNavActive, // SC: always include when drawer active
             groups = ScPrefs.PSEUDO_SPACE_GROUPS.safeLookup(lookup),
-            spacelessGroups = ScPrefs.PSEUDO_SPACE_SPACELESS_GROUPS.safeLookup(lookup),
+            spacelessGroups = ScPrefs.PSEUDO_SPACE_SPACELESS_GROUPS.safeLookup(lookup) || spaceNavActive, // SC: always include when drawer active
             spaceless = ScPrefs.PSEUDO_SPACE_SPACELESS.safeLookup(lookup),
             notifications = ScPrefs.PSEUDO_SPACE_NOTIFICATIONS.safeLookup(lookup),
             unread = ScPrefs.PSEUDO_SPACE_UNREAD.safeLookup(lookup),

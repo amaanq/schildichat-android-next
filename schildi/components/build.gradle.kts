@@ -9,7 +9,9 @@ android {
 
 dependencies {
     implementation(projects.schildi.lib)
+    implementation(projects.schildi.theme)
     implementation(projects.libraries.designsystem)
+    implementation(projects.libraries.matrix.api)
     implementation(projects.libraries.uiStrings)
     implementation(libs.colorpicker)
 }
