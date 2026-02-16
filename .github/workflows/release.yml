@@ -1,0 +1,87 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Prepare signing keystore
+        run: |
+          mkdir -p app/signature
+          echo "${{ secrets.ANDROID_SIGNING_KEY }}" | base64 -d > app/signature/release.keystore
+
+      - name: Build Release APK
+        run: |
+          ./gradlew app:assembleFdroidScDefaultRelease --no-daemon --stacktrace
+        env:
+          SC_RELEASE_KEYSTORE_PATH: ${{ github.workspace }}/app/signature/release.keystore
+          SC_RELEASE_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          SC_RELEASE_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SC_RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Cleanup keystore
+        if: always()
+        run: rm -rf app/signature/release.keystore
+
+      - name: Collect APKs
+        id: apk
+        run: |
+          mkdir -p release-apks
+          for apk in app/build/outputs/apk/fdroidScDefault/release/app-fdroid-sc-default-*-release.apk; do
+            if [ -f "$apk" ]; then
+              arch=$(echo "$apk" | sed -E 's/.*app-fdroid-sc-default-(.*)-release\.apk/\1/')
+              cp "$apk" "release-apks/schildichat-${arch}.apk"
+              echo "Copied: $apk -> schildichat-${arch}.apk"
+            fi
+          done
+          ls -la release-apks/
+          [ "$(ls -A release-apks/)" ] || { echo "No APKs found!"; exit 1; }
+
+      - name: Upload APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: schildichat-release
+          path: release-apks/
+          retention-days: 30
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Download APKs
+        uses: actions/download-artifact@v4
+        with:
+          name: schildichat-release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: "*.apk"
+          generate_release_notes: true
+          draft: false
+          prerelease: false

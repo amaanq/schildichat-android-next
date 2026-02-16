@@ -1,0 +1,177 @@
+name: Sync Upstream and Auto-Release
+
+on:
+  schedule:
+    # Run daily at 3 AM UTC
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      force_release:
+        description: "Force create release even if no changes"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  issues: write
+  actions: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/SchildiChat/schildichat-android-next.git 2>/dev/null || true
+
+      - name: Fetch upstream
+        run: |
+          git fetch upstream
+          git fetch upstream --tags
+
+      - name: Check for updates
+        id: check
+        run: |
+          BEHIND=$(git rev-list HEAD..upstream/main --count)
+
+          if [ "$BEHIND" -eq 0 ] && [ "${{ inputs.force_release }}" != "true" ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "Already up to date with upstream"
+            exit 0
+          fi
+
+          if [ "$BEHIND" -gt 0 ]; then
+            echo "Upstream has $BEHIND new commit(s)"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "behind=$BEHIND" >> $GITHUB_OUTPUT
+          else
+            echo "Forcing release creation"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "behind=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Rebase on upstream
+        if: steps.check.outputs.has_changes == 'true'
+        id: rebase
+        run: |
+          echo "Attempting to rebase on upstream/main..."
+
+          # Save our workflow files before rebase
+          mkdir -p /tmp/our-workflows
+          cp .github/workflows/sync-upstream-auto-release.yml /tmp/our-workflows/
+          cp .github/workflows/release.yml /tmp/our-workflows/
+
+          git rebase upstream/main || {
+            echo "rebase_failed=true" >> $GITHUB_OUTPUT
+            echo "Rebase failed! Manual intervention required."
+            git rebase --abort
+            exit 1
+          }
+
+          echo "rebase_failed=false" >> $GITHUB_OUTPUT
+          echo "Successfully rebased on upstream"
+
+          # Replace all workflows with only ours (drop upstream workflows)
+          rm -rf .github/workflows/*
+          cp /tmp/our-workflows/* .github/workflows/
+
+          if ! git diff --quiet -- .github/workflows/; then
+            git add .github/workflows/
+            git commit --amend --no-edit
+          fi
+
+      - name: Determine version tag
+        if: steps.check.outputs.has_changes == 'true' && steps.rebase.outputs.rebase_failed != 'true'
+        id: version
+        run: |
+          VERSION=$(grep 'versionName' app/build.gradle.kts | head -1 | sed -E 's/.*versionName.*=.*"(.*)".*/\1/' || echo "unknown")
+
+          TAG_NAME="v${VERSION}"
+
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Tag: $TAG_NAME"
+
+      - name: Push main and create tag
+        if: steps.check.outputs.has_changes == 'true' && steps.rebase.outputs.rebase_failed != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.version.outputs.tag_name }}"
+
+          git push --force-with-lease origin main
+
+          # Delete existing release and tag
+          gh release delete "$TAG" --yes 2>/dev/null || true
+          git tag -d "$TAG" 2>/dev/null || true
+          git push origin ":refs/tags/$TAG" 2>/dev/null || true
+
+          git tag -a "$TAG" -m "v${{ steps.version.outputs.version }}"
+          git push origin "refs/tags/$TAG"
+
+          echo "Pushed main and tag: $TAG"
+
+      - name: Trigger release build
+        if: steps.check.outputs.has_changes == 'true' && steps.rebase.outputs.rebase_failed != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.version.outputs.tag_name }}"
+          # GITHUB_TOKEN tag pushes don't trigger on:push workflows,
+          # so explicitly dispatch the release workflow
+          gh workflow run release.yml --ref "$TAG"
+          echo "Triggered release build for $TAG"
+
+      - name: Create summary
+        if: steps.check.outputs.has_changes == 'true'
+        run: |
+          echo "## Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Rebase Status**: ${{ steps.rebase.outputs.rebase_failed == 'true' && '❌ Failed' || '✅ Success' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version Tag**: \`${{ steps.version.outputs.tag_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Base Version**: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          BEHIND=${{ steps.check.outputs.behind }}
+          if [ "${{ steps.rebase.outputs.rebase_failed }}" != "true" ] && [ "$BEHIND" -gt 0 ]; then
+            echo "### Changes" >> $GITHUB_STEP_SUMMARY
+            git log --oneline HEAD~${BEHIND}..HEAD >> $GITHUB_STEP_SUMMARY || true
+          fi
+
+      - name: Notify on failure
+        if: failure() && steps.rebase.outputs.rebase_failed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Upstream sync rebase failed',
+              body: `The automated upstream sync failed during rebase.
+
+              **Workflow Run**: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}
+
+              Manual intervention is required to resolve conflicts and sync with upstream.
+
+              Please:
+              1. Pull the latest changes
+              2. Add upstream remote: \`git remote add upstream https://github.com/SchildiChat/schildichat-android-next.git\`
+              3. Fetch upstream: \`git fetch upstream\`
+              4. Rebase: \`git rebase upstream/main\`
+              5. Resolve any conflicts
+              6. Force push: \`git push --force-with-lease origin main\`
+              `,
+              labels: ['automated', 'sync-failed', 'needs-attention']
+            })
