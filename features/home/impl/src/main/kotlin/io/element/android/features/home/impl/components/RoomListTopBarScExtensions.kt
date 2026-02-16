@@ -20,6 +20,7 @@ fun ScRoomListDropdownEntriesTop(
     onClick: () -> Unit,
     onMenuActionClick: (RoomListMenuAction) -> Unit,
     onStartChatClick: () -> Unit,
+    onMarkAllAsRead: () -> Unit, // SC
 ) {
     if (!ScPrefs.SNC_FAB.value()) {
         DropdownMenuItem(
@@ -51,6 +52,22 @@ fun ScRoomListDropdownEntriesTop(
             )
         }
     )
+    // SC start
+    DropdownMenuItem(
+        onClick = {
+            onClick()
+            onMarkAllAsRead()
+        },
+        text = { Text(stringResource(id = chat.schildi.lib.R.string.sc_mark_all_as_read)) },
+        leadingIcon = {
+            Icon(
+                imageVector = CompoundIcons.MarkAsRead(),
+                tint = ElementTheme.materialColors.secondary,
+                contentDescription = null,
+            )
+        }
+    )
+    // SC end
 }
 
 

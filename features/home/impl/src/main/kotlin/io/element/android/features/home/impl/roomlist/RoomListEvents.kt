@@ -19,6 +19,7 @@ sealed interface RoomListEvents {
     data object DismissNewNotificationSoundBanner : RoomListEvents
     data object ToggleSearchResults : RoomListEvents
     data class ShowContextMenu(val roomSummary: RoomListRoomSummary) : RoomListEvents
+    data object MarkAllAsRead : RoomListEvents // SC
 
     data class AcceptInvite(val roomSummary: RoomListRoomSummary) : RoomListEvents
     data class DeclineInvite(val roomSummary: RoomListRoomSummary, val blockUser: Boolean) : RoomListEvents
