@@ -10,15 +10,19 @@ package io.element.android.features.home.impl.components
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
@@ -88,6 +92,7 @@ fun HomeTopBar(
     // SC start
     selectedSpaceName: String?,
     onStartChatClick: () -> Unit,
+    onOpenSpaceDrawer: (() -> Unit)? = null,
     // SC end
     onToggleSearch: () -> Unit,
     onMenuActionClick: (RoomListMenuAction) -> Unit,
@@ -117,17 +122,29 @@ fun HomeTopBar(
             ),
             title = {
             Crossfade(targetState = selectedSpaceName ?: title, label = "spaceText",) { text -> // SC purposedly bad indention
-                Text(
-                    modifier = Modifier.semantics {
-                        heading()
-                    },
-                    style = ElementTheme.typography.aliasScreenTitle,
-                    // SC changes start
-                    text = text,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    // SC changes end
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = if (onOpenSpaceDrawer != null && selectedSpaceName != null) Modifier.clickable(onClick = onOpenSpaceDrawer) else Modifier,
+                ) {
+                    Text(
+                        modifier = Modifier.semantics {
+                            heading()
+                        },
+                        style = ElementTheme.typography.aliasScreenTitle,
+                        // SC changes start
+                        text = text,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        // SC changes end
+                    )
+                    if (onOpenSpaceDrawer != null && selectedSpaceName != null) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                        )
+                    }
+                }
             } // SC purposedly bad indention end
             },
             navigationIcon = {

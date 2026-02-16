@@ -33,8 +33,6 @@
     <string name="sc_pref_el_typography_summary">Utilice la configuración de fuente de Element con un texto de mensaje más grande</string>
     <string name="sc_pref_compact_app_bar_title">Barra de aplicación compacta</string>
     <string name="sc_pref_compact_app_bar_summary">Nunca expandir la barra superior de aplicación</string>
-    <string name="sc_compact_root_spaces_summary">Mostrar ícono sin nombre para espacios raíz</string>
-    <string name="sc_space_swipe_title">Desliza para cambiar de espacio</string>
     <string name="sc_space_unread_counts_mode_title">Recuento de mensajes no leídos</string>
     <string name="sc_space_unread_counts_mode_messages">Contar mensajes no leídos</string>
     <string name="sc_space_unread_counts_mode_chats">Contar chats no leídos</string>
@@ -73,9 +71,7 @@
     <string name="sc_pref_dual_mention_unread_counts_title">Recuento combinado de menciones y no leídos</string>
     <string name="sc_pref_dual_mention_unread_counts_title_short">Recuento de menciones dual</string>
     <string name="sc_pseudo_space_unread">No leídos</string>
-    <string name="sc_compact_root_spaces_title">Espacios raíz compactos</string>
     <string name="sc_pseudo_space_spaceless_groups">Chats grupales no añadidos a espacios</string>
-    <string name="sc_space_swipe_summary">Arrastre la descripción general del chat horizontalmente para cambiar de espacio</string>
     <string name="sc_pref_prefer_freeform_reactions_summary">Abra el selector de emojis que muestra la entrada de reacción de forma libre de forma predeterminada</string>
     <string name="sc_pref_dual_mention_unread_counts_summary">Cuando el recuento de menciones de un chat destacado difiere del recuento de no leídos, mostrar ambos</string>
     <string name="sc_pref_sc_themes_summary">Deshabilitar para seguir el tema de Element.</string>

@@ -16,9 +16,6 @@
     <string name="sc_pref_compact_app_bar_summary">Jangan per besar bilah aplikasi atas</string>
     <string name="sc_space_nav_title">Navigasi space</string>
     <string name="sc_space_nav_summary">Saring percakapan Anda berdasarkan space</string>
-    <string name="sc_compact_root_spaces_title">Space akar kecil</string>
-    <string name="sc_space_swipe_title">Usap untuk mengganti space</string>
-    <string name="sc_space_swipe_summary">Tarik ikhtisar percakapan secara horizontal untuk mengganti space</string>
     <string name="sc_space_unread_counts_mode_messages">Hitung pesan belum terbaca</string>
     <string name="sc_space_unread_counts_mode_chats">Hitung percakapan belum terbaca</string>
     <string name="sc_space_unread_counts_mode_hide">Sembunyikan</string>
@@ -49,7 +46,6 @@
     <string name="sc_pref_category_chat_overview">Ikhtisar percakapan</string>
     <string name="sc_pref_sc_floating_date_summary">Tampilkan tanggal di atas pesan sambil menggulir</string>
     <string name="sc_pref_category_general_appearance">Tampilan</string>
-    <string name="sc_compact_root_spaces_summary">Tampilkan ikon tanpa nama untuk space akar</string>
     <string name="sc_space_unread_counts_mode_title">Jumlah belum terbaca teragregasi</string>
     <string name="sc_pseudo_space_favorites">Favorit</string>
     <string name="sc_pref_dev_quick_options">Pengaturan cepat</string>

@@ -20,8 +20,6 @@
     <string name="sc_pref_compact_app_bar_summary">Nikdy nerozbalovat horní panel aplikace</string>
     <string name="sc_space_nav_title">Navigace prostorů</string>
     <string name="sc_space_nav_summary">Filtrovat chaty podle prostorů</string>
-    <string name="sc_space_swipe_title">Prostory přepínat přejetím prstu</string>
-    <string name="sc_space_swipe_summary">Přetáhnout přehled chatu horizontálně pro přepnutí prostorů</string>
     <string name="sc_space_unread_counts_mode_title">Souhrnné počty nepřečtených</string>
     <string name="sc_space_unread_counts_mode_messages">Počítat nepřečtené zprávy</string>
     <string name="sc_space_unread_counts_mode_chats">Počítat nepřečtené chaty</string>
@@ -47,8 +45,6 @@
     <string name="sc_pref_category_spaces">Prostory</string>
     <string name="sc_pref_category_misc">Různé</string>
     <string name="sc_pref_category_chat_overview">Přehled chatu</string>
-    <string name="sc_compact_root_spaces_title">Kompaktní kořenové prostory</string>
-    <string name="sc_compact_root_spaces_summary">Zobrazit ikonu bez názvu pro kořenové prostory</string>
     <string name="sc_set_read_marker_implicit_toast_start">Nastavení značky přečtení…</string>
     <string name="sc_pref_debug_read_marker">Ladit značku přečtení</string>
     <string name="sc_space_all_rooms_title">Všechny chaty</string>
