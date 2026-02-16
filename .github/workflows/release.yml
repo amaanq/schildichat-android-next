@@ -1,0 +1,104 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Prepare signing keystore
+        run: |
+          mkdir -p app/signature
+          echo "${{ secrets.ANDROID_SIGNING_KEY }}" | base64 -d > app/signature/release.keystore
+        env:
+          SC_RELEASE_KEYSTORE_PATH: app/signature/release.keystore
+
+      - name: Build Release APK
+        run: |
+          ./gradlew app:assembleFdroidScDefaultRelease --no-daemon --stacktrace
+        env:
+          SC_RELEASE_KEYSTORE_PATH: app/signature/release.keystore
+          SC_RELEASE_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          SC_RELEASE_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          SC_RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Cleanup keystore
+        if: always()
+        run: rm -rf app/signature/release.keystore
+
+      - name: Find and rename APK
+        id: apk
+        run: |
+          APK_PATH=$(find app/build/outputs/apk -name "*fdroidScDefault*release*.apk" -type f | grep -v unaligned | head -n 1)
+
+          if [ -z "$APK_PATH" ]; then
+            echo "No APK found!"
+            exit 1
+          fi
+
+          cp "$APK_PATH" schildichat-release.apk
+          echo "Found: $APK_PATH"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: schildichat-release
+          path: schildichat-release.apk
+          retention-days: 30
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Download APK
+        uses: actions/download-artifact@v4
+        with:
+          name: schildichat-release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: schildichat-release.apk
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+
+  fdroid:
+    needs: release
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Publish to F-Droid
+        run: |
+          DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/schildichat-release.apk"
+
+          curl -f -X POST \
+            -H "Authorization: Bearer ${{ secrets.FDROID_UPLOAD_TOKEN }}" \
+            -H "X-Package-ID: chat.schildi.android" \
+            -H "X-Download-URL: $DOWNLOAD_URL" \
+            https://fdroid.amaanq.com/download
