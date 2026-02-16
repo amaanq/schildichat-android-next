@@ -25,12 +25,14 @@ import androidx.compose.runtime.setValue
  * Inspired from https://github.com/bmarty/swipe/blob/trunk/swipe/src/main/kotlin/me/saket/swipe/SwipeableActionsState.kt
  */
 @Composable
-fun rememberSwipeableActionsState(): SwipeableActionsState {
-    return remember { SwipeableActionsState() }
+fun rememberSwipeableActionsState(allowNegative: Boolean = false): SwipeableActionsState {
+    return remember(allowNegative) { SwipeableActionsState(allowNegative = allowNegative) }
 }
 
 @Stable
-class SwipeableActionsState {
+class SwipeableActionsState(
+    private val allowNegative: Boolean = false,
+) {
     /**
      * The current position (in pixels) of the content.
      */
@@ -45,7 +47,7 @@ class SwipeableActionsState {
 
     val draggableState = DraggableState { delta ->
         val targetOffset = offsetState.floatValue + delta
-        val isAllowed = isResettingOnRelease || targetOffset > 0f
+        val isAllowed = isResettingOnRelease || if (allowNegative) targetOffset < 0f else targetOffset > 0f // SC
 
         offsetState.floatValue += if (isAllowed) delta else 0f
     }

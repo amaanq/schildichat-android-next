@@ -110,6 +110,20 @@ object ScPrefs {
     val LEGACY_MESSAGE_RENDERING = ScBoolPref("LEGACY_MESSAGE_RENDERING", false, R.string.sc_pref_legacy_message_rendering_title, R.string.sc_pref_legacy_message_rendering_summary, authorsChoice = false, upstreamChoice = true)
     val REVERSE_CHAT_MEDIA_SWIPE = ScBoolPref("REVERSE_CHAT_MEDIA_SWIPE", true, R.string.sc_pref_reverse_chat_media_swipe_title, R.string.sc_pref_reverse_chat_media_swipe_summary, authorsChoice = true, upstreamChoice = false)
     val HIDE_VOICE_MESSAGE_BUTTON = ScBoolPref("HIDE_VOICE_MESSAGE_BUTTON", false, R.string.sc_pref_hide_voice_message_title, R.string.sc_pref_hide_voice_message_summary, authorsChoice = false, upstreamChoice = false)
+    object SwipeToReplyMode {
+        const val LEFT = "left"
+        const val RIGHT = "right"
+        const val OFF = "off"
+    }
+    val SWIPE_TO_REPLY = ScStringListPref(
+        "SWIPE_TO_REPLY",
+        SwipeToReplyMode.LEFT,
+        arrayOf(SwipeToReplyMode.LEFT, SwipeToReplyMode.OFF),
+        R.array.sc_swipe_to_reply_names,
+        null,
+        R.string.sc_pref_swipe_to_reply_title,
+        R.string.sc_pref_swipe_to_reply_summary,
+    )
 
     // Custom emojis & stickers
     val ENABLE_CUSTOM_EMOJIS = ScBoolPref("ENABLE_CUSTOM_EMOJIS", true, R.string.sc_pref_custom_emojis_title, R.string.sc_pref_custom_emojis_summary, authorsChoice = true, upstreamChoice = false)
@@ -201,6 +215,7 @@ object ScPrefs {
             FLOATING_DATE,
             HIDE_CALL_TOOLBAR_ACTION,
             HIDE_VOICE_MESSAGE_BUTTON,
+            SWIPE_TO_REPLY,
             REPLY_PREVIEW_LINE_COUNT,
             REVERSE_CHAT_MEDIA_SWIPE,
             LEGACY_MESSAGE_RENDERING,

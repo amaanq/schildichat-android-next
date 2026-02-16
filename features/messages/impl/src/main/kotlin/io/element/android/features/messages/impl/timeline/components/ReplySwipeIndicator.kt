@@ -32,13 +32,17 @@ import io.element.android.libraries.designsystem.theme.components.Icon
 fun RowScope.ReplySwipeIndicator(
     swipeProgress: () -> Float,
     modifier: Modifier = Modifier,
+    reverseDirection: Boolean = false,
 ) {
     Icon(
         modifier = modifier
             .align(Alignment.CenterVertically)
             .graphicsLayer {
-                translationX = 36.dp.toPx() * swipeProgress().coerceAtMost(1f)
+                val progress = swipeProgress().coerceAtMost(1f)
+                val direction = if (reverseDirection) -1f else 1f
+                translationX = direction * 36.dp.toPx() * progress
                 alpha = swipeProgress()
+                if (reverseDirection) rotationY = 180f
             },
         contentDescription = null,
         imageVector = CompoundIcons.Reply(),
