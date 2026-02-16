@@ -124,3 +124,7 @@ checkouts/**
 # Nix
 result
 .direnv/
+
+# Release keystore (local only)
+app/signature/release.keystore
+app/signature/.release-keystore-password
