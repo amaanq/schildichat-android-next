@@ -28,6 +28,7 @@ import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import im.vector.app.features.analytics.plan.PinUnpinAction
 import chat.schildi.imagepacks.ImagePackService
+import io.element.android.features.messages.impl.spacedrawer.ChatSpaceDrawerPresenter
 import io.element.android.appconfig.MessageComposerConfig
 import io.element.android.features.messages.api.timeline.HtmlConverterProvider
 import io.element.android.features.messages.impl.actionlist.ActionListState
@@ -76,6 +77,7 @@ import io.element.android.libraries.matrix.api.encryption.EncryptionService
 import io.element.android.libraries.matrix.api.encryption.identity.IdentityState
 import io.element.android.libraries.matrix.api.permalink.PermalinkParser
 import io.element.android.libraries.matrix.api.room.JoinedRoom
+import io.element.android.libraries.matrix.api.roomlist.RoomListService
 import io.element.android.libraries.matrix.api.room.RoomInfo
 import io.element.android.libraries.matrix.api.room.RoomMembersState
 import io.element.android.libraries.matrix.api.room.history.RoomHistoryVisibility
@@ -131,6 +133,7 @@ class MessagesPresenter(
     private val sessionPreferencesStore: SessionPreferencesStore, // SC
     private val scPreferencesStore: ScPreferencesStore, // SC
     private val imagePackService: ImagePackService, // SC
+    private val roomListService: RoomListService, // SC
     @SessionCoroutineScope private val sessionCoroutineScope: CoroutineScope,
 ) : Presenter<MessagesState> {
     @AssistedFactory
@@ -188,6 +191,12 @@ class MessagesPresenter(
             StickerPickerPresenter(room = room, imagePackService = imagePackService, snackbarDispatcher = snackbarDispatcher)
         }
         val stickerPickerState = stickerPickerPresenter.present()
+
+        // SC: Chat space drawer presenter — always compose so state stays fresh
+        val chatSpaceDrawerPresenter = remember {
+            ChatSpaceDrawerPresenter(currentRoomId = room.roomId, roomListService = roomListService)
+        }
+        val chatSpaceDrawerState = chatSpaceDrawerPresenter.present()
 
         var hasDismissedInviteDialog by rememberSaveable {
             mutableStateOf(false)
@@ -280,6 +289,9 @@ class MessagesPresenter(
                 is MessagesEvent.DismissStickerPicker -> { // SC
                     showStickerPicker = false
                 }
+                is MessagesEvent.NavigateToRoom -> { // SC
+                    navigator.navigateToRoom(event.roomId, null, emptyList())
+                }
                 is MessagesEvent.MarkAsFullyReadAndExit -> coroutineScope.launch {
                     if (!markingAsReadAndExiting.getAndSet(true)) {
                         val latestEventId = room.liveTimeline.getLatestEventId().getOrElse {
@@ -340,6 +352,7 @@ class MessagesPresenter(
             isRoomEncrypted = roomInfo.isEncrypted, // SC
             showStickerPicker = showStickerPicker, // SC
             stickerPickerState = stickerPickerState, // SC
+            chatSpaceDrawerState = chatSpaceDrawerState, // SC
             roomMemberModerationState = roomMemberModerationState,
             showSharedHistoryIcon = showSharedHistoryIcon,
             successorRoom = roomInfo.successorRoom,

@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.element.android.features.messages.api.timeline.voicemessages.composer.VoiceMessageComposerState
 import io.element.android.features.messages.api.timeline.voicemessages.composer.aVoiceMessageComposerState
 import io.element.android.features.messages.api.timeline.voicemessages.composer.aVoiceMessagePreviewState
+import io.element.android.features.messages.impl.spacedrawer.ChatSpaceDrawerState
 import io.element.android.features.messages.impl.sticker.StickerPickerState
 import io.element.android.features.messages.impl.actionlist.ActionListState
 import io.element.android.features.messages.impl.actionlist.anActionListState
@@ -154,6 +155,13 @@ fun aMessagesState(
         isLoading = false,
         hadLoadErrors = false,
         eventSink = {},
+    ),
+    chatSpaceDrawerState = ChatSpaceDrawerState(
+        enabled = false,
+        pseudoSpaces = persistentListOf(),
+        realSpaces = persistentListOf(),
+        currentRoomId = RoomId("!id:domain"),
+        currentSpaceId = "",
     ),
     showSharedHistoryIcon = showSharedHistoryIcon,
     successorRoom = successorRoom,
