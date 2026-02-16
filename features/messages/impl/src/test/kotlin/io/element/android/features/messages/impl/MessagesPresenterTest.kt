@@ -11,6 +11,10 @@
 package io.element.android.features.messages.impl
 
 import androidx.lifecycle.Lifecycle
+import chat.schildi.imagepacks.ImagePackRepository
+import chat.schildi.imagepacks.ImagePackService
+import chat.schildi.lib.preferences.FakeScPreferencesStore
+import io.element.android.libraries.preferences.test.InMemorySessionPreferencesStore
 import com.google.common.truth.Truth.assertThat
 import im.vector.app.features.analytics.plan.PinUnpinAction
 import io.element.android.features.messages.impl.actionlist.ActionListEvent
@@ -70,6 +74,7 @@ import io.element.android.libraries.matrix.api.timeline.Timeline
 import io.element.android.libraries.matrix.api.timeline.item.TimelineItemDebugInfo
 import io.element.android.libraries.matrix.api.timeline.item.event.EventOrTransactionId
 import io.element.android.libraries.matrix.api.timeline.item.event.toEventOrTransactionId
+import io.element.android.libraries.matrix.test.FakeMatrixClient
 import io.element.android.libraries.matrix.test.AN_AVATAR_URL
 import io.element.android.libraries.matrix.test.AN_EVENT_ID
 import io.element.android.libraries.matrix.test.AN_EXCEPTION
@@ -1329,6 +1334,9 @@ class MessagesPresenterTest {
             featureFlagService = featureFlagService,
             addRecentEmoji = addRecentEmoji,
             markAsFullyRead = markAsFullyRead,
+            sessionPreferencesStore = InMemorySessionPreferencesStore(), // SC
+            scPreferencesStore = FakeScPreferencesStore, // SC
+            imagePackService = ImagePackService(ImagePackRepository(FakeMatrixClient())), // SC
             sessionCoroutineScope = backgroundScope,
         )
     }

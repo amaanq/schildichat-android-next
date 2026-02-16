@@ -110,6 +110,10 @@ object ScPrefs {
     val LEGACY_MESSAGE_RENDERING = ScBoolPref("LEGACY_MESSAGE_RENDERING", false, R.string.sc_pref_legacy_message_rendering_title, R.string.sc_pref_legacy_message_rendering_summary, authorsChoice = false, upstreamChoice = true)
     val REVERSE_CHAT_MEDIA_SWIPE = ScBoolPref("REVERSE_CHAT_MEDIA_SWIPE", true, R.string.sc_pref_reverse_chat_media_swipe_title, R.string.sc_pref_reverse_chat_media_swipe_summary, authorsChoice = true, upstreamChoice = false)
 
+    // Custom emojis & stickers
+    val ENABLE_CUSTOM_EMOJIS = ScBoolPref("ENABLE_CUSTOM_EMOJIS", true, R.string.sc_pref_custom_emojis_title, R.string.sc_pref_custom_emojis_summary, authorsChoice = true, upstreamChoice = false)
+    val ENABLE_STICKER_PICKER = ScBoolPref("ENABLE_STICKER_PICKER", true, R.string.sc_pref_sticker_picker_title, R.string.sc_pref_sticker_picker_summary, authorsChoice = true, upstreamChoice = false, dependencies = ENABLE_CUSTOM_EMOJIS.asDependencies(), disabledValue = false)
+
     // Advanced theming options - Light theme
     val BUBBLE_BG_LIGHT_OUTGOING = ScColorPref("BUBBLE_BG_LIGHT_OUTGOING", R.string.sc_pref_bubble_color_outgoing_title)
     val BUBBLE_BG_LIGHT_INCOMING = ScColorPref("BUBBLE_BG_LIGHT_INCOMING", R.string.sc_pref_bubble_color_incoming_title)
@@ -215,6 +219,10 @@ object ScPrefs {
                 PREFER_FREEFORM_REACTIONS,
                 PREFER_FULLSCREEN_REACTION_SHEET,
                 ALWAYS_SHOW_REACTION_SEARCH_BAR,
+            )),
+            ScPrefCategory(R.string.sc_pref_category_emojis_stickers, null, listOf(
+                ENABLE_CUSTOM_EMOJIS,
+                ENABLE_STICKER_PICKER,
             )),
         )),
         ScPrefScreen(R.string.sc_pref_category_notifications, null, listOf(

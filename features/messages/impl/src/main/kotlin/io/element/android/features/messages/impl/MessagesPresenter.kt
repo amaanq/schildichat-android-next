@@ -27,11 +27,13 @@ import dev.zacsweers.metro.Assisted
 import dev.zacsweers.metro.AssistedFactory
 import dev.zacsweers.metro.AssistedInject
 import im.vector.app.features.analytics.plan.PinUnpinAction
+import chat.schildi.imagepacks.ImagePackService
 import io.element.android.appconfig.MessageComposerConfig
 import io.element.android.features.messages.api.timeline.HtmlConverterProvider
 import io.element.android.features.messages.impl.actionlist.ActionListState
 import io.element.android.features.messages.impl.actionlist.model.TimelineItemAction
 import io.element.android.features.messages.impl.crypto.identity.IdentityChangeState
+import io.element.android.features.messages.impl.sticker.StickerPickerPresenter
 import io.element.android.features.messages.impl.link.LinkState
 import io.element.android.features.messages.impl.messagecomposer.MessageComposerEvent
 import io.element.android.features.messages.impl.messagecomposer.MessageComposerState
@@ -128,6 +130,7 @@ class MessagesPresenter(
     private val markAsFullyRead: MarkAsFullyRead,
     private val sessionPreferencesStore: SessionPreferencesStore, // SC
     private val scPreferencesStore: ScPreferencesStore, // SC
+    private val imagePackService: ImagePackService, // SC
     @SessionCoroutineScope private val sessionCoroutineScope: CoroutineScope,
 ) : Presenter<MessagesState> {
     @AssistedFactory
@@ -178,6 +181,13 @@ class MessagesPresenter(
         val heroes by remember {
             derivedStateOf { roomInfo.heroes().toImmutableList() }
         }
+
+        // SC: Sticker picker state — always compose so coroutine scope survives dismissal
+        var showStickerPicker by remember { mutableStateOf(false) }
+        val stickerPickerPresenter = remember {
+            StickerPickerPresenter(room = room, imagePackService = imagePackService, snackbarDispatcher = snackbarDispatcher)
+        }
+        val stickerPickerState = stickerPickerPresenter.present()
 
         var hasDismissedInviteDialog by rememberSaveable {
             mutableStateOf(false)
@@ -260,6 +270,12 @@ class MessagesPresenter(
                 is MessagesEvent.OnUserClicked -> {
                     roomMemberModerationState.eventSink(RoomMemberModerationEvents.ShowActionsForUser(event.user))
                 }
+                is MessagesEvent.ShowStickerPicker -> { // SC
+                    showStickerPicker = true
+                }
+                is MessagesEvent.DismissStickerPicker -> { // SC
+                    showStickerPicker = false
+                }
                 is MessagesEvent.MarkAsFullyReadAndExit -> coroutineScope.launch {
                     if (!markingAsReadAndExiting.getAndSet(true)) {
                         val latestEventId = room.liveTimeline.getLatestEventId().getOrElse {
@@ -318,6 +334,8 @@ class MessagesPresenter(
             pinnedMessagesBannerState = pinnedMessagesBannerState,
             dmUserVerificationState = dmUserVerificationState,
             isRoomEncrypted = roomInfo.isEncrypted, // SC
+            showStickerPicker = showStickerPicker, // SC
+            stickerPickerState = stickerPickerState, // SC
             roomMemberModerationState = roomMemberModerationState,
             showSharedHistoryIcon = showSharedHistoryIcon,
             successorRoom = roomInfo.successorRoom,

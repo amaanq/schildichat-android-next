@@ -24,6 +24,8 @@ data class EmojiPickerState(
     val searchQuery: TextFieldState,
     val isSearchActive: Boolean,
     val searchResults: SearchBarResultState<ImmutableList<Emoji>>,
+    val customEmojiPacks: ImmutableList<CustomEmojiCategory>,
+    val customEmojiSearchResults: ImmutableList<CustomEmoji>,
     val eventSink: (EmojiPickerEvent) -> Unit,
 )
 
@@ -34,4 +36,24 @@ data class EmojiCategory(
     @StringRes val titleId: Int,
     val icon: IconSource,
     val emojis: ImmutableList<Emoji>,
+)
+
+/**
+ * Represents a custom emoji pack category.
+ */
+@Immutable
+data class CustomEmojiCategory(
+    val packName: String,
+    val avatarUrl: String?,
+    val emojis: ImmutableList<CustomEmoji>,
+)
+
+/**
+ * Represents a single custom emoji from an image pack.
+ */
+@Immutable
+data class CustomEmoji(
+    val shortcode: String,
+    val url: String,
+    val body: String?,
 )

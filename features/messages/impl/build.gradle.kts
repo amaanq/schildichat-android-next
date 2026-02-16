@@ -30,6 +30,8 @@ dependencies {
     implementation(projects.schildi.components)
     implementation(projects.schildi.theme)
     implementation(projects.schildi.matrixsdk)
+    implementation(projects.schildi.imagepacks)
+    implementation(libs.serialization.json)
 
     api(libs.beeper.messageformat)
 

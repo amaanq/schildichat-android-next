@@ -23,7 +23,11 @@ import io.element.android.features.location.api.LocationService
 import io.element.android.features.location.test.FakeLocationService
 import io.element.android.features.messages.impl.FakeMessagesNavigator
 import io.element.android.features.messages.impl.MessagesNavigator
+import chat.schildi.imagepacks.ImagePackRepository
+import chat.schildi.imagepacks.ImagePackService
+import chat.schildi.lib.preferences.FakeScPreferencesStore
 import io.element.android.features.messages.impl.attachments.Attachment
+import io.element.android.libraries.matrix.test.FakeMatrixClient
 import io.element.android.features.messages.impl.draft.ComposerDraftService
 import io.element.android.features.messages.impl.draft.FakeComposerDraftService
 import io.element.android.features.messages.impl.messagecomposer.suggestions.SuggestionsProcessor
@@ -1545,7 +1549,10 @@ class MessageComposerPresenterTest {
         draftService = draftService,
         mentionSpanProvider = mentionSpanProvider,
         pillificationHelper = textPillificationHelper,
-        suggestionsProcessor = SuggestionsProcessor(),
+        suggestionsProcessor = SuggestionsProcessor(
+            imagePackService = ImagePackService(ImagePackRepository(FakeMatrixClient())),
+            scPreferencesStore = FakeScPreferencesStore,
+        ),
         mediaOptimizationConfigProvider = mediaOptimizationConfigProvider,
         notificationConversationService = notificationConversationService,
     ).apply {

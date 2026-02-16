@@ -131,6 +131,12 @@
     <string name="sc_pref_category_timeline">Conversation screen</string>
     <string name="sc_pref_category_timeline_short">Timeline</string>
     <string name="sc_pref_category_reactions">Reactions</string>
+    <string name="sc_pref_category_emojis_stickers">Emojis &amp; Stickers</string>
+    <string name="sc_pref_custom_emojis_title">Custom emoji packs</string>
+    <string name="sc_pref_custom_emojis_summary">Show custom emoji packs in the reaction picker and autocomplete</string>
+    <string name="sc_pref_sticker_picker_title">Sticker picker</string>
+    <string name="sc_pref_sticker_picker_summary">Show a sticker button in the message composer</string>
+    <string name="sc_sticker_picker_title">Stickers</string>
     <string name="sc_pref_category_pinned_messages">Pinned messages</string>
     <string name="sc_pref_category_notifications">Notifications</string>
     <string name="sc_pref_category_misc">Misc</string>

@@ -73,6 +73,8 @@ internal fun anEmojiPickerState(
     searchQuery: String = "",
     isSearchActive: Boolean = false,
     searchResults: SearchBarResultState<ImmutableList<Emoji>> = SearchBarResultState.Initial(),
+    customEmojiPacks: ImmutableList<CustomEmojiCategory> = persistentListOf(),
+    customEmojiSearchResults: ImmutableList<CustomEmoji> = persistentListOf(),
     eventSink: (EmojiPickerEvent) -> Unit = {},
 ) = EmojiPickerState(
     categories = categories,
@@ -80,5 +82,7 @@ internal fun anEmojiPickerState(
     searchQuery = TextFieldState(initialText = searchQuery),
     isSearchActive = isSearchActive,
     searchResults = searchResults,
+    customEmojiPacks = customEmojiPacks,
+    customEmojiSearchResults = customEmojiSearchResults,
     eventSink = eventSink,
 )

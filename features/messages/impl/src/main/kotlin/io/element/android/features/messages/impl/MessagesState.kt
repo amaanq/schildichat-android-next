@@ -14,6 +14,7 @@ import io.element.android.features.messages.impl.crypto.identity.IdentityChangeS
 import io.element.android.features.messages.impl.link.LinkState
 import io.element.android.features.messages.impl.messagecomposer.MessageComposerState
 import io.element.android.features.messages.impl.pinned.banner.PinnedMessagesBannerState
+import io.element.android.features.messages.impl.sticker.StickerPickerState
 import io.element.android.features.messages.impl.timeline.TimelineState
 import io.element.android.features.messages.impl.timeline.components.customreaction.CustomReactionState
 import io.element.android.features.messages.impl.timeline.components.reactionsummary.ReactionSummaryState
@@ -54,6 +55,8 @@ data class MessagesState(
     val pinnedMessagesBannerState: PinnedMessagesBannerState,
     val dmUserVerificationState: IdentityState?,
     val isRoomEncrypted: Boolean? = null, // SC
+    val showStickerPicker: Boolean = false, // SC
+    val stickerPickerState: StickerPickerState, // SC
     val roomMemberModerationState: RoomMemberModerationState,
     /** Should the top bar include the "history" icon? */
     val showSharedHistoryIcon: Boolean,
