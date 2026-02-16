@@ -22,6 +22,7 @@ import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import io.element.android.libraries.matrix.api.core.RoomIdOrAlias
+import io.element.android.libraries.matrix.api.core.UserId
 import io.element.android.libraries.matrix.api.core.toRoomIdOrAlias
 import io.element.android.libraries.matrix.api.permalink.PermalinkBuilder
 import io.element.android.libraries.matrix.api.room.IntentionalMention
@@ -88,6 +89,19 @@ class MarkdownTextEditorState(
             }
         }
     }
+
+    // SC start
+    fun insertMentionAtCursor(userId: UserId, mentionSpanProvider: MentionSpanProvider) {
+        val currentText = SpannableStringBuilder(text.value())
+        val insertPos = selection.first
+        val mentionSpan = mentionSpanProvider.createUserMentionSpan(userId)
+        currentText.insert(insertPos, "@ ")
+        val end = insertPos + 1
+        currentText.setSpan(mentionSpan, insertPos, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        text.update(currentText, true)
+        selection = IntRange(end + 1, end + 1)
+    }
+    // SC end
 
     fun getMessageMarkdown(permalinkBuilder: PermalinkBuilder): String {
         val charSequence = text.value()

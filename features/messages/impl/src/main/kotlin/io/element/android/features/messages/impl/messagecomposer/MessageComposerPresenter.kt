@@ -364,6 +364,16 @@ class MessageComposerPresenter(
                         }
                     }
                 }
+                is MessageComposerEvent.InsertMention -> { // SC
+                    if (!showTextFormatting) {
+                        markdownTextEditorState.insertMentionAtCursor(event.userId, mentionSpanProvider)
+                    } else {
+                        localCoroutineScope.launch {
+                            val link = permalinkBuilder.permalinkForUser(event.userId).getOrNull() ?: return@launch
+                            richTextEditorState.insertMentionAtSuggestion(text = event.userId.value, link = link)
+                        }
+                    }
+                }
                 MessageComposerEvent.SaveDraft -> {
                     val draft = createDraftFromState(markdownTextEditorState, richTextEditorState)
                     sessionCoroutineScope.updateDraft(draft, isVolatile = false)
