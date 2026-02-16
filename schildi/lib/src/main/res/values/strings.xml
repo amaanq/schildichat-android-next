@@ -210,6 +210,11 @@
     <string name="sc_pref_reverse_chat_media_swipe_summary">Swipe right for next (newer) image when viewing media from chat timeline</string>
     <string name="sc_pref_hide_voice_message_title">Hide voice message button</string>
     <string name="sc_pref_hide_voice_message_summary">Remove the microphone button from the message composer</string>
+    <string name="sc_pref_swipe_to_reply_title">Swipe to reply</string>
+    <string name="sc_pref_swipe_to_reply_summary">Swipe direction on messages to trigger reply</string>
+    <string name="sc_pref_swipe_to_reply_left">Swipe left</string>
+    <string name="sc_pref_swipe_to_reply_right">Swipe right</string>
+    <string name="sc_pref_swipe_to_reply_off">Disabled</string>
 
     <string name="sc_about_based_on_element_x_version">Based on Element X: %1$s</string>
     <string name="sc_about_git_revision">Built from: %1$s</string>
