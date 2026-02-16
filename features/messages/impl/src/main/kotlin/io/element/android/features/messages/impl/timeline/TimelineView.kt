@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import chat.schildi.lib.preferences.ScPrefs
 import chat.schildi.lib.preferences.ScPrefs.FLOATING_DATE
 import chat.schildi.lib.preferences.value
 import chat.schildi.timeline.FloatingDateHeader
@@ -64,6 +65,8 @@ import io.element.android.features.messages.impl.timeline.model.NewEventState
 import io.element.android.features.messages.impl.timeline.model.TimelineItem
 import io.element.android.features.messages.impl.timeline.model.event.TimelineItemEventContent
 import io.element.android.features.messages.impl.timeline.model.event.TimelineItemEventContentProvider
+import io.element.android.features.messages.impl.timeline.model.event.TimelineItemProfileChangeContent
+import io.element.android.features.messages.impl.timeline.model.event.TimelineItemRoomMembershipContent
 import io.element.android.features.messages.impl.timeline.protection.TimelineProtectionState
 import io.element.android.features.messages.impl.timeline.protection.aTimelineProtectionState
 import io.element.android.libraries.androidutils.system.copyToClipboard
@@ -81,6 +84,7 @@ import io.element.android.libraries.testtags.testTag
 import io.element.android.libraries.ui.strings.CommonStrings
 import io.element.android.libraries.ui.utils.time.isTalkbackActive
 import io.element.android.wysiwyg.link.Link
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -114,17 +118,6 @@ fun TimelineView(
         state.eventSink(TimelineEvent.ClearFocusRequestState)
     }
 
-    fun onScrollFinishAt(firstVisibleIndex: Int, visibleItemCount: Int) {
-        state.eventSink(TimelineEvent.OnScrollFinished(firstVisibleIndex))
-        val timeline = state.timelineItems
-        val firstVisibleTimelineIndex = effectiveVisibleTimelineItemIndex(firstVisibleIndex)
-        if (firstVisibleTimelineIndex < timeline.size &&
-            timeline.subList(firstVisibleTimelineIndex, min(timeline.size-1, firstVisibleTimelineIndex+visibleItemCount))
-                .any { it.contentType() == "TimelineItemReadMarkerModel" }) {
-            state.eventSink(TimelineEvent.OnUnreadLineVisible)
-        }
-    }
-
     fun onFocusEventRender() {
         state.eventSink(TimelineEvent.OnFocusEventRender)
     }
@@ -138,6 +131,48 @@ fun TimelineView(
     val view = LocalView.current
     // Disable reverse layout when TalkBack is enabled to avoid incorrect ordering issues seen in the current Compose UI version
     val useReverseLayout = !isTalkbackActive()
+
+    // SC: Hide membership events
+    val hideMembershipEvents = ScPrefs.HIDE_MEMBERSHIP_EVENTS.value()
+    val timelineItems = remember(state.timelineItems, hideMembershipEvents) {
+        if (!hideMembershipEvents) {
+            state.timelineItems // No filtering needed
+        } else {
+            state.timelineItems.mapNotNull { item ->
+                when (item) {
+                    is TimelineItem.Event -> {
+                        val shouldHide = // SC
+                            (hideMembershipEvents && (item.content is TimelineItemRoomMembershipContent || item.content is TimelineItemProfileChangeContent))
+                        if (shouldHide) null else item
+                    }
+                    is TimelineItem.GroupedEvents -> {
+                        val filtered = item.events.filter { event ->
+                            val shouldHide = // SC
+                                (hideMembershipEvents && (event.content is TimelineItemRoomMembershipContent || event.content is TimelineItemProfileChangeContent))
+                            !shouldHide
+                        }
+                        when {
+                            filtered.isEmpty() -> null
+                            filtered.size == item.events.size -> item
+                            else -> item.copy(events = filtered.toImmutableList())
+                        }
+                    }
+                    else -> item
+                }
+            }.toImmutableList()
+        }
+    }
+
+    fun onScrollFinishAt(firstVisibleIndex: Int, visibleItemCount: Int) {
+        state.eventSink(TimelineEvent.OnScrollFinished(firstVisibleIndex))
+        val timeline = timelineItems
+        val firstVisibleTimelineIndex = effectiveVisibleTimelineItemIndex(firstVisibleIndex)
+        if (firstVisibleTimelineIndex < timeline.size &&
+            timeline.subList(firstVisibleTimelineIndex, min(timeline.size-1, firstVisibleTimelineIndex+visibleItemCount))
+                .any { it.contentType() == "TimelineItemReadMarkerModel" }) {
+            state.eventSink(TimelineEvent.OnUnreadLineVisible)
+        }
+    }
 
     fun inReplyToClick(eventId: EventId) {
         state.eventSink(TimelineEvent.FocusOnEvent(eventId))
@@ -170,7 +205,7 @@ fun TimelineView(
                 contentPadding = PaddingValues(top = 64.dp, bottom = 8.dp),
             ) {
                 items(
-                    items = state.timelineItems,
+                    items = timelineItems,
                     contentType = { timelineItem -> timelineItem.contentType() },
                     key = { timelineItem -> timelineItem.identifier() },
                 ) { timelineItem ->
@@ -222,7 +257,7 @@ fun TimelineView(
                 onFocusEventRender = ::onFocusEventRender,
             )
             if (FLOATING_DATE.value()) {
-                FloatingDateHeader(lazyListState, state.timelineItems)
+                FloatingDateHeader(lazyListState, timelineItems)
             }
         }
     }
