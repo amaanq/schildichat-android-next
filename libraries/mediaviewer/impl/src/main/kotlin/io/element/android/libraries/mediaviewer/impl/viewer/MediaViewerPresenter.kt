@@ -39,6 +39,8 @@ import io.element.android.libraries.mediaviewer.api.MediaViewerEntryPoint
 import io.element.android.libraries.mediaviewer.api.local.LocalMedia
 import io.element.android.libraries.mediaviewer.impl.R
 import io.element.android.libraries.mediaviewer.impl.details.MediaBottomSheetState
+import chat.schildi.lib.preferences.ScPrefs
+import chat.schildi.lib.preferences.value
 import io.element.android.libraries.mediaviewer.impl.local.LocalMediaActions
 import io.element.android.libraries.mediaviewer.impl.model.MediaPermissions
 import io.element.android.libraries.mediaviewer.impl.model.mediaPermissions
@@ -161,10 +163,19 @@ class MediaViewerPresenter(
             }
         }
 
+        // SC: Reverse swipe direction for chat timeline media viewer
+        val reverseLayout = ScPrefs.REVERSE_CHAT_MEDIA_SWIPE.value() && when (inputs.mode.getTimelineMode()) {
+            Timeline.Mode.Live,
+            is Timeline.Mode.FocusedOnEvent,
+            is Timeline.Mode.Thread -> true
+            else -> false
+        }
+
         return MediaViewerState(
             initiallySelectedEventId = inputs.eventId,
             listData = data.value,
             currentIndex = currentIndex.intValue,
+            reverseLayout = reverseLayout,
             snackbarMessage = snackbarMessage,
             canShowInfo = inputs.canShowInfo,
             mediaBottomSheetState = mediaBottomSheetState,
