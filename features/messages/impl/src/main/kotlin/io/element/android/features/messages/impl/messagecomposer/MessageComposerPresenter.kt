@@ -144,6 +144,9 @@ class MessageComposerPresenter(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal var showTextFormatting: Boolean by mutableStateOf(false)
 
+    // SC: Mapping from custom emoji shortcodes to MXC URLs for send-time HTML replacement
+    private val customEmojiMap = mutableMapOf<String, String>()
+
     @SuppressLint("UnsafeOptInUsageError")
     @Composable
     override fun present(): MessageComposerState {
@@ -340,8 +343,19 @@ class MessageComposerPresenter(
                                     val link = permalinkBuilder.permalinkForRoomAlias(suggestion.roomAlias).getOrNull() ?: return@launch
                                     richTextEditorState.insertMentionAtSuggestion(text = text, link = link)
                                 }
+                                is ResolvedSuggestion.CustomEmoji -> {
+                                    // SC: Store shortcode → MXC URL mapping for send-time HTML replacement,
+                                    // and insert :shortcode: into the editor so the user sees it
+                                    customEmojiMap[suggestion.shortcode] = suggestion.mxcUrl
+                                    richTextEditorState.replaceSuggestion(":${suggestion.shortcode}:")
+                                }
                             }
                         } else if (markdownTextEditorState.currentSuggestion != null) {
+                            // SC: Store shortcode → MXC URL mapping for custom emoji
+                            if (event.resolvedSuggestion is ResolvedSuggestion.CustomEmoji) {
+                                val emoji = event.resolvedSuggestion as ResolvedSuggestion.CustomEmoji
+                                customEmojiMap[emoji.shortcode] = emoji.mxcUrl
+                            }
                             markdownTextEditorState.insertSuggestion(
                                 resolvedSuggestion = event.resolvedSuggestion,
                                 mentionSpanProvider = mentionSpanProvider,
@@ -422,6 +436,7 @@ class MessageComposerPresenter(
                     roomAliasSuggestions = roomAliasSuggestions,
                     currentUserId = currentUserId,
                     canSendRoomMention = ::canSendRoomMention,
+                    room = room,
                 )
                 suggestions.clear()
                 suggestions.addAll(result)
@@ -430,14 +445,49 @@ class MessageComposerPresenter(
         }
     }
 
+    // SC: Replace :shortcode: patterns with <img data-mx-emoticon> tags for custom emoji
+    private fun processCustomEmojiInMessage(message: Message): Message {
+        if (customEmojiMap.isEmpty()) return message
+        val body = message.markdown
+        var html = message.html ?: body
+        var hasReplacement = false
+        for ((shortcode, mxcUrl) in customEmojiMap) {
+            // Only allow mxc:// URLs to prevent injection of arbitrary src values
+            if (!mxcUrl.startsWith("mxc://")) continue
+            val pattern = ":$shortcode:"
+            if (body.contains(pattern)) {
+                val safeUrl = mxcUrl.escapeHtmlAttr()
+                val safeAlt = pattern.escapeHtmlAttr()
+                val imgTag = """<img data-mx-emoticon src="$safeUrl" alt="$safeAlt" title="$safeAlt" height="32" />"""
+                html = html.replace(pattern, imgTag)
+                hasReplacement = true
+            }
+        }
+        return if (hasReplacement) {
+            message.copy(html = html)
+        } else {
+            message
+        }
+    }
+
+    private fun String.escapeHtmlAttr(): String = this
+        .replace("&", "&amp;")
+        .replace("\"", "&quot;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+
     private fun CoroutineScope.sendMessage(
         markdownTextEditorState: MarkdownTextEditorState,
         richTextEditorState: RichTextEditorState,
     ) = launch {
-        val message = currentComposerMessage(markdownTextEditorState, richTextEditorState, withMentions = true)
+        val rawMessage = currentComposerMessage(markdownTextEditorState, richTextEditorState, withMentions = true)
+        // SC: Process custom emoji shortcodes into HTML <img> tags
+        val message = processCustomEmojiInMessage(rawMessage)
         val capturedMode = messageComposerContext.composerMode
         // Reset composer right away
         resetComposer(markdownTextEditorState, richTextEditorState, fromEdit = capturedMode is MessageComposerMode.Edit)
+        // SC: Clear custom emoji map after sending
+        customEmojiMap.clear()
         when (capturedMode) {
             is MessageComposerMode.Attachment,
             is MessageComposerMode.Normal -> timelineController.invokeOnCurrentTimeline {

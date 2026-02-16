@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import io.element.android.features.messages.api.timeline.voicemessages.composer.VoiceMessageComposerState
 import io.element.android.features.messages.api.timeline.voicemessages.composer.aVoiceMessageComposerState
 import io.element.android.features.messages.api.timeline.voicemessages.composer.aVoiceMessagePreviewState
+import io.element.android.features.messages.impl.sticker.StickerPickerState
 import io.element.android.features.messages.impl.actionlist.ActionListState
 import io.element.android.features.messages.impl.actionlist.anActionListState
 import io.element.android.features.messages.impl.crypto.identity.IdentityChangeState
@@ -148,6 +149,12 @@ fun aMessagesState(
     pinnedMessagesBannerState = pinnedMessagesBannerState,
     dmUserVerificationState = dmUserVerificationState,
     roomMemberModerationState = roomMemberModerationState,
+    stickerPickerState = StickerPickerState(
+        packs = kotlinx.collections.immutable.persistentListOf(),
+        isLoading = false,
+        hadLoadErrors = false,
+        eventSink = {},
+    ),
     showSharedHistoryIcon = showSharedHistoryIcon,
     successorRoom = successorRoom,
     eventSink = eventSink,

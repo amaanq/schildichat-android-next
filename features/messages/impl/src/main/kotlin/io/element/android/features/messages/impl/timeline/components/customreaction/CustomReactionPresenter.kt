@@ -9,15 +9,20 @@
 package io.element.android.features.messages.impl.timeline.components.customreaction
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import chat.schildi.imagepacks.ImagePackService
+import chat.schildi.lib.preferences.ScPrefs
+import chat.schildi.lib.preferences.value
 import dev.zacsweers.metro.Inject
 import io.element.android.features.messages.impl.timeline.model.TimelineItem
 import io.element.android.libraries.architecture.Presenter
+import io.element.android.libraries.matrix.api.room.JoinedRoom
 import io.element.android.libraries.recentemojis.api.EmojibaseProvider
 import io.element.android.libraries.recentemojis.api.GetRecentEmojis
 import kotlinx.collections.immutable.ImmutableList
@@ -29,11 +34,21 @@ import kotlinx.coroutines.launch
 class CustomReactionPresenter(
     private val emojibaseProvider: EmojibaseProvider,
     private val getRecentEmojis: GetRecentEmojis,
+    private val imagePackService: ImagePackService,
+    private val room: JoinedRoom,
 ) : Presenter<CustomReactionState> {
     @Composable
     override fun present(): CustomReactionState {
         val localCoroutineScope = rememberCoroutineScope()
         var recentEmojis by remember { mutableStateOf<ImmutableList<String>>(persistentListOf()) }
+
+        // Eagerly preload image packs so the cache is warm when the picker opens
+        val customEmojisEnabled = ScPrefs.ENABLE_CUSTOM_EMOJIS.value()
+        LaunchedEffect(customEmojisEnabled) {
+            if (customEmojisEnabled) {
+                imagePackService.refreshPacks(room)
+            }
+        }
 
         val target: MutableState<CustomReactionState.Target> = remember {
             mutableStateOf(CustomReactionState.Target.None)
@@ -72,6 +87,8 @@ class CustomReactionPresenter(
             target = target.value,
             selectedEmoji = selectedEmoji,
             recentEmojis = recentEmojis,
+            imagePackService = imagePackService,
+            room = room,
             eventSink = ::handleEvent,
         )
     }

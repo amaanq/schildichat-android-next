@@ -16,6 +16,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalInspectionMode
+import chat.schildi.imagepacks.ImagePackService
+import chat.schildi.lib.preferences.ScPrefs
+import chat.schildi.lib.preferences.value
 import io.element.android.compound.tokens.generated.CompoundIcons
 import io.element.android.emojibasebindings.Emoji
 import io.element.android.emojibasebindings.EmojibaseStore
@@ -26,7 +29,9 @@ import io.element.android.libraries.architecture.Presenter
 import io.element.android.libraries.core.coroutine.CoroutineDispatchers
 import io.element.android.libraries.designsystem.theme.components.IconSource
 import io.element.android.libraries.designsystem.theme.components.SearchBarResultState
+import io.element.android.libraries.matrix.api.room.BaseRoom
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
@@ -36,6 +41,8 @@ class EmojiPickerPresenter(
     private val emojibaseStore: EmojibaseStore,
     private val recentEmojis: ImmutableList<String>,
     private val coroutineDispatchers: CoroutineDispatchers,
+    private val imagePackService: ImagePackService? = null,
+    private val room: BaseRoom? = null,
 ) : Presenter<EmojiPickerState> {
     @Composable
     override fun present(): EmojiPickerState {
@@ -68,9 +75,37 @@ class EmojiPickerPresenter(
             }
         }
 
+        // SC: Load custom emoji packs
+        val customEmojisEnabled = ScPrefs.ENABLE_CUSTOM_EMOJIS.value()
+        var customEmojiPacks by remember { mutableStateOf<ImmutableList<CustomEmojiCategory>>(persistentListOf()) }
+        LaunchedEffect(imagePackService, room, customEmojisEnabled) {
+            if (imagePackService != null && customEmojisEnabled) {
+                withContext(coroutineDispatchers.computation) {
+                    val packs = imagePackService.getAllEmoticons(room)
+                    customEmojiPacks = packs.map { (resolved, images) ->
+                        CustomEmojiCategory(
+                            packName = resolved.pack.displayName ?: "Custom",
+                            avatarUrl = resolved.pack.avatarUrl,
+                            emojis = images.map { image ->
+                                CustomEmoji(
+                                    shortcode = image.shortcode,
+                                    url = image.url,
+                                    body = image.body,
+                                )
+                            }.toImmutableList(),
+                        )
+                    }.toImmutableList()
+                }
+            } else {
+                customEmojiPacks = persistentListOf()
+            }
+        }
+
         val searchQuery = queryState.text.toString()
+        var customEmojiSearchResults by remember { mutableStateOf<ImmutableList<CustomEmoji>>(persistentListOf()) }
         LaunchedEffect(searchQuery) {
             emojiResults = if (searchQuery.isEmpty()) {
+                customEmojiSearchResults = persistentListOf()
                 SearchBarResultState.Initial()
             } else {
                 // Add a small delay to avoid doing too many computations when the user is typing quickly
@@ -86,6 +121,16 @@ class EmojiPickerPresenter(
                         }
                         .take(60)
                         .toImmutableList()
+                }
+
+                // SC: Also search custom emojis
+                customEmojiSearchResults = withContext(coroutineDispatchers.computation) {
+                    customEmojiPacks.flatMap { category ->
+                        category.emojis.filter { emoji ->
+                            emoji.shortcode.lowercase().contains(lowercaseQuery) ||
+                                emoji.body?.lowercase()?.contains(lowercaseQuery) == true
+                        }
+                    }.take(60).toImmutableList()
                 }
 
                 SearchBarResultState.Results(results)
@@ -108,6 +153,8 @@ class EmojiPickerPresenter(
             searchQuery = queryState,
             isSearchActive = isSearchActive,
             searchResults = emojiResults,
+            customEmojiPacks = customEmojiPacks,
+            customEmojiSearchResults = customEmojiSearchResults,
             eventSink = ::handleEvent,
         )
     }

@@ -8,10 +8,14 @@
 
 package io.element.android.features.messages.impl.timeline.components.customreaction
 
+import chat.schildi.imagepacks.ImagePackRepository
+import chat.schildi.imagepacks.ImagePackService
 import com.google.common.truth.Truth.assertThat
 import io.element.android.features.messages.impl.timeline.aTimelineItemEvent
 import io.element.android.features.messages.impl.timeline.aTimelineItemReactions
 import io.element.android.libraries.matrix.test.AN_EVENT_ID
+import io.element.android.libraries.matrix.test.FakeMatrixClient
+import io.element.android.libraries.matrix.test.room.FakeJoinedRoom
 import io.element.android.libraries.recentemojis.test.FakeEmojibaseProvider
 import io.element.android.tests.testutils.WarmUpRule
 import io.element.android.tests.testutils.test
@@ -27,6 +31,8 @@ class CustomReactionPresenterTest {
     private val presenter = CustomReactionPresenter(
         emojibaseProvider = FakeEmojibaseProvider(),
         getRecentEmojis = { Result.success(persistentListOf()) },
+        imagePackService = ImagePackService(ImagePackRepository(FakeMatrixClient())),
+        room = FakeJoinedRoom(),
     )
 
     @Test

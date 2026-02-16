@@ -11,6 +11,8 @@ internal fun fixInlineImages(
 ) {
     val images = dom.getElementsByTag("img")
     images.forEach {
+        // SC: Preserve custom emoji images (MSC2545)
+        if (it.hasAttr("data-mx-emoticon")) return@forEach
         val fallback = it.attr("alt").takeIf(String::isNotBlank) ?: it.attr("title").takeIf(String::isNotBlank) ?: return@forEach
         it.replaceWith(TextNode(fallback))
     }

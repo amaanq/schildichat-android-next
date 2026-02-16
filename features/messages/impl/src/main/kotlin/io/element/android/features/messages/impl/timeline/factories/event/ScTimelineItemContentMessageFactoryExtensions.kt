@@ -22,6 +22,9 @@ import com.beeper.android.messageformat.DefaultMatrixBodyStyledFormatter
 import com.beeper.android.messageformat.MENTION_ROOM
 import com.beeper.android.messageformat.MatrixBodyDrawStyle
 import com.beeper.android.messageformat.MatrixBodyParseResult
+import com.beeper.android.messageformat.DrawPosition
+import com.beeper.android.messageformat.MatrixFormatInteractionState
+import com.beeper.android.messageformat.SpanAttributes
 import com.beeper.android.messageformat.MatrixBodyPreFormatStyle
 import com.beeper.android.messageformat.MatrixBodyStyledFormatter
 import com.beeper.android.messageformat.MatrixHtmlParser
@@ -170,13 +173,16 @@ fun matrixBodyDrawStyle(sessionId: SessionId? = LocalSessionId.current): MatrixB
     val mentionColor = ScTheme.exposures.mentionBg
     val mentionHighlightColor = ScTheme.exposures.mentionBgHighlight
     val onSurfaceVariantColor = ElementTheme.colors.iconDisabled
+    val spoilerColor = ElementTheme.materialColors.outlineVariant // SC: opaque mid-tone color to hide spoiler text
     return remember(
         mentionColor,
         mentionHighlightColor,
         onSurfaceVariantColor,
+        spoilerColor,
         sessionId,
     ) {
         MatrixBodyDrawStyle(
+            defaultForegroundColor = onSurfaceVariantColor,
             drawBehindRoomMention = { position ->
                 drawRoundRect(
                     mentionHighlightColor,
@@ -206,6 +212,38 @@ fun matrixBodyDrawStyle(sessionId: SessionId? = LocalSessionId.current): MatrixB
                     size = Size(barWidthDp * density, position.rect.height),
                     cornerRadius = CornerRadius(barWidthDp * density, barWidthDp * density),
                 )
+            },
+            // SC: Draw subtle background behind revealed spoiler text
+            drawBehindSpan = { attributes, pos, state ->
+                val bgColor = attributes.bgColor
+                if (bgColor != null) {
+                    drawRect(
+                        androidx.compose.ui.graphics.Color(bgColor),
+                        topLeft = pos.rect.topLeft,
+                        size = pos.rect.size,
+                    )
+                }
+                if (attributes.isSpoiler && attributes.revealId in state.expandedItems.value) {
+                    val pad = 2f * density
+                    drawRoundRect(
+                        spoilerColor.copy(alpha = 0.5f),
+                        topLeft = Offset(pos.rect.left - pad, pos.rect.top - pad),
+                        size = Size(pos.rect.width + pad * 2, pos.rect.height + pad * 2),
+                        cornerRadius = CornerRadius(4f * density, 4f * density)
+                    )
+                }
+            },
+            // SC: Use opaque color for spoiler overlay so text is fully hidden
+            drawAboveSpan = { attributes, pos, state ->
+                if (attributes.isSpoiler && attributes.revealId !in state.expandedItems.value) {
+                    val pad = 2f * density
+                    drawRoundRect(
+                        spoilerColor,
+                        topLeft = Offset(pos.rect.left - pad, pos.rect.top - pad),
+                        size = Size(pos.rect.width + pad * 2, pos.rect.height + pad * 2),
+                        cornerRadius = CornerRadius(4f * density, 4f * density)
+                    )
+                }
             },
         )
     }

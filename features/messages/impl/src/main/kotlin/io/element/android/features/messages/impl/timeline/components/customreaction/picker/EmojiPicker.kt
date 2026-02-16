@@ -8,7 +8,10 @@
 
 package io.element.android.features.messages.impl.timeline.components.customreaction.picker
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -16,29 +19,45 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import chat.schildi.lib.preferences.ScPrefs
 import chat.schildi.lib.preferences.value
+import coil3.compose.AsyncImage
+import io.element.android.compound.theme.ElementTheme
 import io.element.android.emojibasebindings.Emoji
 import io.element.android.features.messages.impl.timeline.components.customreaction.EmojiItem
+import io.element.android.libraries.matrix.api.media.MediaSource
+import io.element.android.libraries.matrix.ui.media.MediaRequestData
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
 import io.element.android.libraries.designsystem.text.toSp
 import io.element.android.libraries.designsystem.theme.components.Icon
 import io.element.android.libraries.designsystem.theme.components.IconSource
+import io.element.android.libraries.designsystem.theme.components.Text
 import io.element.android.libraries.ui.strings.CommonStrings
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
@@ -60,6 +79,19 @@ fun EmojiPicker(
         pageCount = state.scEmojiPickerSize().let {{ it }},
         initialPage = if (ScPrefs.PREFER_FREEFORM_REACTIONS.value()) state.pageFreeformReactionIndex() else 0,
     )
+    val customEmojiGridState = rememberLazyGridState()
+
+    // Compute item indices for each pack's header in the combined custom emoji grid
+    val packHeaderIndices = remember(state.customEmojiPacks) {
+        buildList {
+            var idx = 0
+            for (pack in state.customEmojiPacks) {
+                add(idx)
+                idx += 1 + pack.emojis.size // header + emojis
+            }
+        }
+    }
+
     Column(modifier) {
         ScEmojiPickerSearchBar(
             modifier = Modifier.padding(bottom = 10.dp),
@@ -70,16 +102,39 @@ fun EmojiPicker(
             windowInsets = WindowInsets(0, 0, 0, 0),
             placeHolderTitle = stringResource(CommonStrings.emoji_picker_search_placeholder),
         ) { emojis ->
-            EmojiResults(
+            CombinedEmojiResults(
                 emojis = emojis,
+                customEmojis = state.customEmojiSearchResults,
                 isEmojiSelected = { selectedEmojis.contains(it.unicode) },
                 onSelectEmoji = onSelectEmoji,
+                onSelectCustomEmoji = onSelectCustomEmoji,
             )
         }
 
         if (!state.isSearchActive) {
+            // Map pager page index to SecondaryTabRow tab index.
+            // The single combined custom page has no tab, so collapse it out.
+            val selectedTabIndex = run {
+                val page = pagerState.currentPage
+                when {
+                    page < state.categories.size -> page
+                    page == state.customPackPageIndex() -> (state.categories.size - 1).coerceAtLeast(0)
+                    else -> page - state.customPageCount()
+                }
+            }
+
+            val isCustomPackSelected = pagerState.currentPage == state.customPackPageIndex()
+
+            // Row 1: Standard emoji category tabs + freeform/search
             SecondaryTabRow(
-                selectedTabIndex = pagerState.currentPage,
+                selectedTabIndex = selectedTabIndex,
+                indicator = {
+                    if (!isCustomPackSelected) {
+                        TabRowDefaults.SecondaryIndicator(
+                            Modifier.tabIndicatorOffset(selectedTabIndex)
+                        )
+                    }
+                },
             ) {
                 state.categories.forEachIndexed { index, category ->
                     Tab(
@@ -101,7 +156,65 @@ fun EmojiPicker(
                         }
                     )
                 }
-                ScEmojiPickerTabsEnd(state, pagerState) { state.eventSink(EmojiPickerEvent.ToggleSearchActive(true)) }
+                ScEmojiPickerNonCustomTabsEnd(state, pagerState) { state.eventSink(EmojiPickerEvent.ToggleSearchActive(true)) }
+            }
+
+            // Custom emoji pack row between tabs and grid — scrolls to section in combined grid
+            if (state.customEmojiPacks.isNotEmpty()) {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    itemsIndexed(state.customEmojiPacks.toList()) { packIndex, pack ->
+                        val iconUrl = pack.avatarUrl ?: pack.emojis.firstOrNull()?.url
+                        // Highlight based on which pack section is visible in the grid
+                        val isSelected = isCustomPackSelected &&
+                            packHeaderIndices.getOrNull(packIndex)?.let { headerIdx ->
+                                val nextHeaderIdx = packHeaderIndices.getOrNull(packIndex + 1) ?: Int.MAX_VALUE
+                                customEmojiGridState.firstVisibleItemIndex in headerIdx until nextHeaderIdx
+                            } == true
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(RoundedCornerShape(6.dp))
+                                .then(
+                                    if (isSelected) {
+                                        Modifier.background(ElementTheme.colors.bgSubtlePrimary)
+                                    } else {
+                                        Modifier
+                                    }
+                                )
+                                .clickable {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(state.customPackPageIndex())
+                                        packHeaderIndices.getOrNull(packIndex)?.let {
+                                            customEmojiGridState.animateScrollToItem(it)
+                                        }
+                                    }
+                                }
+                                .padding(4.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            if (iconUrl != null) {
+                                AsyncImage(
+                                    model = MediaRequestData(MediaSource(iconUrl), MediaRequestData.Kind.Content),
+                                    contentDescription = pack.packName,
+                                    modifier = Modifier.size(24.dp),
+                                    contentScale = ContentScale.Fit,
+                                )
+                            } else {
+                                Text(
+                                    text = pack.packName.take(2),
+                                    style = ElementTheme.typography.fontBodySmRegular,
+                                )
+                            }
+                        }
+                    }
+                }
+                HorizontalDivider(color = ElementTheme.colors.borderDisabled)
             }
 
             HorizontalPager(
@@ -113,7 +226,8 @@ fun EmojiPicker(
                         state,
                         scIndex,
                         pagerState.currentPage,
-                        onSelectCustomEmoji
+                        onSelectCustomEmoji,
+                        customEmojiGridState,
                 ) {
                     state.eventSink(EmojiPickerEvent.ToggleSearchActive(true))
                     pagerState.requestScrollToPage(0)
@@ -153,6 +267,48 @@ private fun EmojiResults(
                 onSelectEmoji = onSelectEmoji,
                 emojiSize = 32.dp.toSp(),
             )
+        }
+    }
+}
+
+@Composable
+private fun CombinedEmojiResults(
+    emojis: ImmutableList<Emoji>,
+    customEmojis: ImmutableList<CustomEmoji>,
+    isEmojiSelected: (Emoji) -> Boolean,
+    onSelectEmoji: (Emoji) -> Unit,
+    onSelectCustomEmoji: (String) -> Unit,
+) {
+    LazyVerticalGrid(
+        modifier = Modifier.fillMaxSize(),
+        columns = GridCells.Adaptive(minSize = 48.dp),
+        contentPadding = PaddingValues(vertical = 10.dp, horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        items(emojis, key = { it.unicode }) { item ->
+            EmojiItem(
+                modifier = Modifier.aspectRatio(1f),
+                item = item,
+                isSelected = isEmojiSelected(item),
+                onSelectEmoji = onSelectEmoji,
+                emojiSize = 32.dp.toSp(),
+            )
+        }
+        items(customEmojis, key = { "custom_${it.url}" }) { emoji ->
+            Box(
+                modifier = Modifier
+                    .aspectRatio(1f)
+                    .clickable { onSelectCustomEmoji(emoji.url) },
+                contentAlignment = Alignment.Center,
+            ) {
+                AsyncImage(
+                    model = MediaRequestData(MediaSource(emoji.url), MediaRequestData.Kind.Content),
+                    contentDescription = emoji.body ?: ":${emoji.shortcode}:",
+                    modifier = Modifier.size(32.dp),
+                    contentScale = ContentScale.Fit,
+                )
+            }
         }
     }
 }

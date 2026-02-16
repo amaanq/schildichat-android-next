@@ -19,6 +19,8 @@ sealed interface MessagesEvent {
     data class InviteDialogDismissed(val action: InviteDialogAction) : MessagesEvent
     data class OnUserClicked(val user: MatrixUser) : MessagesEvent
     data object MarkAsFullyReadAndExit : MessagesEvent
+    data object ShowStickerPicker : MessagesEvent // SC
+    data object DismissStickerPicker : MessagesEvent // SC
 }
 
 enum class InviteDialogAction {

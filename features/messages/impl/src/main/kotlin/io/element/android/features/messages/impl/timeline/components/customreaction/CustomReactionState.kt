@@ -8,8 +8,10 @@
 
 package io.element.android.features.messages.impl.timeline.components.customreaction
 
+import chat.schildi.imagepacks.ImagePackService
 import io.element.android.emojibasebindings.EmojibaseStore
 import io.element.android.features.messages.impl.timeline.model.TimelineItem
+import io.element.android.libraries.matrix.api.room.BaseRoom
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
 
@@ -17,6 +19,8 @@ data class CustomReactionState(
     val target: Target,
     val selectedEmoji: ImmutableSet<String>,
     val recentEmojis: ImmutableList<String>,
+    val imagePackService: ImagePackService? = null,
+    val room: BaseRoom? = null,
     val eventSink: (CustomReactionEvent) -> Unit,
 ) {
     sealed interface Target {

@@ -77,6 +77,15 @@ class MarkdownTextEditorState(
                 this.text.update(currentText, true)
                 this.selection = IntRange(end + 1, end + 1)
             }
+            is ResolvedSuggestion.CustomEmoji -> {
+                // SC: Replace :partial with :shortcode: for custom emoji
+                val replacement = ":${resolvedSuggestion.shortcode}: "
+                val currentText = SpannableStringBuilder(text.value())
+                currentText.replace(suggestion.start, suggestion.end, replacement)
+                val end = suggestion.start + replacement.length
+                this.text.update(currentText, true)
+                this.selection = IntRange(end, end)
+            }
         }
     }
 

@@ -8,6 +8,9 @@
 
 package io.element.android.features.messages.impl.messagecomposer.suggestions
 
+import chat.schildi.imagepacks.ImagePackRepository
+import chat.schildi.imagepacks.ImagePackService
+import chat.schildi.lib.preferences.FakeScPreferencesStore
 import com.google.common.truth.Truth.assertThat
 import io.element.android.libraries.matrix.api.core.UserId
 import io.element.android.libraries.matrix.api.room.RoomMembersState
@@ -15,6 +18,7 @@ import io.element.android.libraries.matrix.api.room.RoomMembershipState
 import io.element.android.libraries.matrix.test.A_ROOM_ALIAS
 import io.element.android.libraries.matrix.test.A_USER_ID
 import io.element.android.libraries.matrix.test.A_USER_ID_2
+import io.element.android.libraries.matrix.test.FakeMatrixClient
 import io.element.android.libraries.matrix.test.room.aRoomMember
 import io.element.android.libraries.matrix.test.room.aRoomSummary
 import io.element.android.libraries.textcomposer.mentions.ResolvedSuggestion
@@ -30,7 +34,10 @@ class SuggestionsProcessorTest {
     private val aCommandSuggestion = Suggestion(0, 1, SuggestionType.Command, "")
     private val aCustomSuggestion = Suggestion(0, 1, SuggestionType.Custom("*"), "")
 
-    private val suggestionsProcessor = SuggestionsProcessor()
+    private val suggestionsProcessor = SuggestionsProcessor(
+        imagePackService = ImagePackService(ImagePackRepository(FakeMatrixClient())),
+        scPreferencesStore = FakeScPreferencesStore,
+    )
 
     @Test
     fun `processing null suggestion will return empty suggestion`() = runTest {

@@ -55,6 +55,7 @@ import chat.schildi.lib.preferences.ScPrefScreen
 import chat.schildi.lib.preferences.enabledState
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.libraries.designsystem.components.dialogs.ListOption
+import io.element.android.libraries.designsystem.components.list.ListItemContent
 import io.element.android.libraries.designsystem.components.dialogs.SingleSelectionDialog
 import io.element.android.libraries.designsystem.components.preferences.PreferenceCategory
 import io.element.android.libraries.designsystem.components.preferences.PreferenceSwitch
@@ -318,9 +319,8 @@ fun <T>ScListPref<T>.Rendered(initial: Any, onChange: (Any) -> Unit) {
         },
         supportingContent = summaryRes?.let {
             { Text(stringResource(it)) }
-        } ?: {
-            Text(selectedName)
         },
+        trailingContent = ListItemContent.Text(selectedName),
         onClick = { if (enabled) openDialog.value = true },
         enabled = enabled,
     )

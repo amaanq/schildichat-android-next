@@ -50,11 +50,14 @@ fun TimelineItemStickerView(
     modifier: Modifier = Modifier,
 ) {
     val description = content.bestDescription.takeIf { it.isNotEmpty() } ?: stringResource(CommonStrings.common_image)
+    var isLoaded by remember { mutableStateOf(false) }
     Column(
         modifier = modifier.semantics { contentDescription = description },
     ) {
         TimelineItemAspectRatioBox(
-            modifier = Modifier.blurHashBackground(content.blurhash, alpha = 0.9f),
+            modifier = Modifier.then(
+                if (!isLoaded) Modifier.blurHashBackground(content.blurhash, alpha = 0.9f) else Modifier
+            ),
             aspectRatio = coerceRatioWhenHidingContent(content.aspectRatio, hideMediaContent),
             minHeight = 128, // STICKER_SIZE_IN_DP,
             maxHeight = 192, // STICKER_SIZE_IN_DP,
@@ -63,11 +66,9 @@ fun TimelineItemStickerView(
                 hideContent = hideMediaContent,
                 onShowClick = onShowClick,
             ) {
-                var isLoaded by remember { mutableStateOf(false) }
                 AsyncImage(
                     modifier = Modifier
                         .fillMaxSize()
-                        .then(if (isLoaded) Modifier.background(Color.White) else Modifier)
                         .then(
                             if (onContentClick != null) {
                                 Modifier
@@ -88,7 +89,7 @@ fun TimelineItemStickerView(
                             mimeType = content.mimeType,
                         ),
                     ),
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Fit,
                     alignment = Alignment.Center,
                     contentDescription = description,
                     onState = { isLoaded = it is AsyncImagePainter.State.Success },
