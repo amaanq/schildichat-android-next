@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import chat.schildi.theme.ScTheme
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.libraries.designsystem.preview.ElementThemedPreview
 import io.element.android.libraries.designsystem.preview.PreviewGroup
@@ -54,16 +55,21 @@ fun Switch(
 }
 
 @Composable
-internal fun compoundSwitchColors() = SwitchDefaults.colors(
-    uncheckedThumbColor = ElementTheme.colors.iconSecondary,
-    uncheckedBorderColor = ElementTheme.colors.borderInteractivePrimary,
-    uncheckedTrackColor = Color.Transparent,
-    checkedTrackColor = ElementTheme.colors.bgAccentRest,
-    disabledUncheckedBorderColor = ElementTheme.colors.borderDisabled,
-    disabledUncheckedThumbColor = ElementTheme.colors.iconDisabled,
-    disabledCheckedTrackColor = ElementTheme.colors.iconDisabled,
-    disabledCheckedBorderColor = ElementTheme.colors.iconDisabled,
-)
+internal fun compoundSwitchColors() = if (ScTheme.exposures.isScTheme) {
+    // SC: use standard M3 switch colors to match system appearance
+    SwitchDefaults.colors()
+} else {
+    SwitchDefaults.colors(
+        uncheckedThumbColor = ElementTheme.colors.iconSecondary,
+        uncheckedBorderColor = ElementTheme.colors.borderInteractivePrimary,
+        uncheckedTrackColor = Color.Transparent,
+        checkedTrackColor = ElementTheme.colors.bgAccentRest,
+        disabledUncheckedBorderColor = ElementTheme.colors.borderDisabled,
+        disabledUncheckedThumbColor = ElementTheme.colors.iconDisabled,
+        disabledCheckedTrackColor = ElementTheme.colors.iconDisabled,
+        disabledCheckedBorderColor = ElementTheme.colors.iconDisabled,
+    )
+}
 
 @Preview(group = PreviewGroup.Toggles)
 @Composable

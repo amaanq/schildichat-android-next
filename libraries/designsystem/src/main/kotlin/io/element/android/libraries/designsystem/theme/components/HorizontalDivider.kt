@@ -28,6 +28,7 @@ fun HorizontalDivider(
     thickness: Dp = ScTheme.exposures.horizontalDividerThickness,
     color: Color = DividerDefaults.color,
 ) {
+    if (thickness <= 0.dp) return
     androidx.compose.material3.HorizontalDivider(
         modifier = modifier,
         thickness = thickness,
