@@ -215,6 +215,8 @@
     <string name="sc_pref_swipe_to_reply_left">Swipe left</string>
     <string name="sc_pref_swipe_to_reply_right">Swipe right</string>
     <string name="sc_pref_swipe_to_reply_off">Disabled</string>
+    <string name="sc_pref_hide_membership_events_title">Hide membership events</string>
+    <string name="sc_pref_hide_membership_events_summary">Hide join, leave, kick, ban, and profile change events from the timeline</string>
 
     <string name="sc_about_based_on_element_x_version">Based on Element X: %1$s</string>
     <string name="sc_about_git_revision">Built from: %1$s</string>
