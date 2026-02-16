@@ -253,8 +253,12 @@ fun MessagesView(
                             onContentClick = ::onContentClick,
                             onMessageLongClick = ::onMessageLongClick,
                             onUserDataClick = {
-                                hidingKeyboard {
+                                if (state.composerState.textEditorState.hasFocus()) { // SC: tap avatar to mention
                                     state.eventSink(MessagesEvent.OnUserClicked(it))
+                                } else {
+                                    hidingKeyboard {
+                                        state.eventSink(MessagesEvent.OnUserClicked(it))
+                                    }
                                 }
                             },
                             onLinkClick = { link, customTab ->
