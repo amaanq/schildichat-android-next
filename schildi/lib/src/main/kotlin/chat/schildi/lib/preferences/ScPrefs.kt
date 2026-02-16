@@ -109,6 +109,7 @@ object ScPrefs {
     val VIEW_REDACTIONS = ScBoolPref("VIEW_REDACTIONS", true, R.string.sc_pref_view_redactions_title, R.string.sc_pref_view_redactions_summary, /*dependencies = listOf(VIEW_HIDDEN_EVENTS.toDependency(expect = false)),*/ disabledValue = true, upstreamChoice = true)
     val LEGACY_MESSAGE_RENDERING = ScBoolPref("LEGACY_MESSAGE_RENDERING", false, R.string.sc_pref_legacy_message_rendering_title, R.string.sc_pref_legacy_message_rendering_summary, authorsChoice = false, upstreamChoice = true)
     val REVERSE_CHAT_MEDIA_SWIPE = ScBoolPref("REVERSE_CHAT_MEDIA_SWIPE", true, R.string.sc_pref_reverse_chat_media_swipe_title, R.string.sc_pref_reverse_chat_media_swipe_summary, authorsChoice = true, upstreamChoice = false)
+    val HIDE_VOICE_MESSAGE_BUTTON = ScBoolPref("HIDE_VOICE_MESSAGE_BUTTON", false, R.string.sc_pref_hide_voice_message_title, R.string.sc_pref_hide_voice_message_summary, authorsChoice = false, upstreamChoice = false)
 
     // Custom emojis & stickers
     val ENABLE_CUSTOM_EMOJIS = ScBoolPref("ENABLE_CUSTOM_EMOJIS", true, R.string.sc_pref_custom_emojis_title, R.string.sc_pref_custom_emojis_summary, authorsChoice = true, upstreamChoice = false)
@@ -199,6 +200,7 @@ object ScPrefs {
             //RENDER_INLINE_IMAGES,
             FLOATING_DATE,
             HIDE_CALL_TOOLBAR_ACTION,
+            HIDE_VOICE_MESSAGE_BUTTON,
             REPLY_PREVIEW_LINE_COUNT,
             REVERSE_CHAT_MEDIA_SWIPE,
             LEGACY_MESSAGE_RENDERING,
